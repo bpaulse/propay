@@ -14,19 +14,32 @@
 	<link rel="stylesheet" href="{{ asset('toastr/toastr.min.css') }}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/css/jquery-ui.css" rel="stylesheet">
+	<!-- <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}"> -->
+	<link rel="stylesheet" href="{{ asset('toastr/toastr.min.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
+	<link rel="stylesheet" href="{{ asset('css/filter_multi_select.css') }}" />
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<link href="{{ asset('select2/dist/css/select2.min.css') }}" rel='stylesheet' type='text/css'>
 
 	<!-- Scripts -->
 	<script src="{{ asset('js/app.js') }}" defer></script>
 	<script src="{{ asset('jquery/jquery-3.6.0.min.js') }}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
-	<script src="{{ asset('js/people.js') }}" defer></script>
+	
 	<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 	<script type="text/javascript" src="{{ asset('toastr/toastr.min.js') }}"></script>
 	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
 	<!-- Fonts -->
 	<link rel="dns-prefetch" href="//fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
+	<script src="{{ asset('js/filter-multi-select-bundle.min.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('select2/dist/js/select2.min.js') }}" ></script>
+	
 
 </head>
 <body>
@@ -89,5 +102,16 @@
 			@yield('content')
 		</main>
 	</div>
+
+	@stack('login_script')
+	@stack('people_script')
+	@stack('people_script')
+	@stack('events_script')
+	@stack('eventDetail_script')
+	@stack('clientlist_script')
+	<!-- @stack('wodresults_script') -->
+	@stack('woddetails_script')
+	@stack('index_script')
+	<!-- $(document).on('click', '.addClient', openClientAddModal); -->
 </body>
 </html>

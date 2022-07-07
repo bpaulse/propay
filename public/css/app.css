@@ -243,6 +243,12 @@ a:not([href]):not([class]), a:not([href]):not([class]):hover {
   text-decoration: none;
 }
 
+.error {
+  color: red;
+  font-size: 11px;
+  border: 1px dash red;
+}
+
 pre,
 code,
 kbd,
@@ -4400,6 +4406,9 @@ textarea.form-control-lg {
 .card-group > .card {
   margin-bottom: 0.75rem;
 }
+
+
+
 @media (min-width: 576px) {
   .card-group {
     display: flex;
@@ -6140,7 +6149,7 @@ textarea.form-control-lg {
   min-height: 1em;
   vertical-align: middle;
   cursor: wait;
-  background-color: currentColor;
+  /* background-color: currentColor; */
   opacity: 0.5;
 }
 .placeholder.btn::before {

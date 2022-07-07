@@ -2,6 +2,15 @@ $(document).ready(function(){
 
 	console.log('People');
 
+	buildMultiselect();
+
+	$(document).on('click', '#popme', function(){
+		console.log('beeebe');
+
+		$('#email').val('bevanpaulse@gmail.com');
+		$('#password').val('12345678');
+	});
+
 	toastr.options.preventDuplicates = false;
 
 	loadPeople();
@@ -12,8 +21,208 @@ $(document).ready(function(){
 	$(document).on('click', '.closeEditModal', closeEditModal);
 	$(document).on('click', '.closeDeleteModal', closeDeleteModal);
 
+	$(document).on('click', '.deletePersonButton', deletePersonFunc);
+
+	$(document).on('click', '#DateOfBirth', populateDOB);
+
+	$(document).on('click', '.updatePerson', updatePerson);
+
+	$(document).on('keyup', 'input', function(evt){
+
+		if ( evt.target.value == '' ){
+			$('.error-' + $(this).attr('id')).text('Please enter your ' + $(this).attr('id') + '...');
+		} else {
+
+			// console.log('target not empty');
+
+			if ( $(this).attr('id') == 'Email' ) {
+
+				// console.log('target is email');
+
+				if( !IsEmail(evt.target.value) ){
+					// console.log('not a valid email');
+					// console.log($(this).attr('id') + ' invalid...');
+					var descriptorId = 'error-' + $(this).attr('id');
+					// console.log(descriptorId);
+					$('.' + descriptorId).text('Your Email Address format is Incorrect...');
+				}
+
+			} else {
+				$('.error-' + $(this).attr('id')).text('');
+			}
+
+
+		}
+
+	});
+
+	$('#editPersonModal').on('hidden.bs.modal', function () {
+		console.log('hard reset');
+		$(this).find('form').trigger('reset');
+	});
+
+	$(document).on('click', '#backtoHome', function(){
+		window.location.href = '/home';
+	});
 
 });
+
+function buildMultiselect() {
+
+	console.log('buildMultiselect');
+
+	var ajaxData = {};
+
+	$.ajax({
+
+		method: 'get',
+		url: '/buildMultiselect',
+		data: ajaxData,
+		dataType: 'json',
+		success: function(response) {
+
+			var options = '';
+
+			$.each(response, function(index,data2){
+				options += '<option value="' + data2.id + '">' + data2.Name + '</option>';
+			});
+
+			// var interestSelect = '<label class="col-2 col-form-label" for="animals">Interests</label>';
+			// interestSelect += '<select multiple name="animals" id="animals" class="filter-multi-select">';
+			// interestSelect += options;
+
+			// interestSelect += '<option value="1">Bear</option>';
+			// interestSelect += '<option value="2">Ant</option>';
+			// interestSelect += '<option value="3">Salamander</option>';
+			// interestSelect += '<option value="4">Owl</option>';
+			// interestSelect += '<option value="5">Frog</option>';
+			// interestSelect += '<option value="6">Shark</option>';
+
+			// interestSelect += '</select>';
+			$('#animals').append(options);
+
+		}
+
+	});
+
+}
+
+$(function () {
+	// Apply the plugin 
+	var notifications = $('#notifications');
+	$('#animals').on("optionselected", function(e) {
+		createNotification("selected", e.detail.label);
+	});
+	$('#animals').on("optiondeselected", function(e) {
+		createNotification("deselected", e.detail.label);
+	});
+	function createNotification(event,label) {
+	  var n = $(document.createElement('span'))
+		.text(event + ' ' + label + "  ")
+		.addClass('notification')
+		.appendTo(notifications)
+		.fadeOut(3000, function() {
+		  n.remove();
+		});
+	}
+});
+
+function updatePerson () {
+
+	// console.log('updatePerson');
+	// console.log($('#Interest').val());
+
+	var proceed = false;
+
+	if ( $('#Name').val() == '' ) {
+		$('.error-Name').text('Please enter your Name...');
+		proceed = false;
+	}
+	
+	if ( $('#Name').val() == '' ) {
+		$('.error-Name').text('Please enter your Name...');
+		proceed = false;
+	}
+	if ( $('#Surname').val() == '' ) {
+		$('.error-Surname').text('Please enter your Surname...');
+		proceed = false;
+	}
+	if ( $('#Email').val() == '' ) {
+		$('.error-Email').text('Please enter your Email...');
+		proceed = false;
+	} else {
+		console.log('email not empty');
+		if( !IsEmail($('#Email').val()) ){
+			console.log('email not valid');
+			$('.error-Email').text('Your Email Address format is Incorrect...');
+			proceed = false;
+		}
+	}
+
+
+	if ( $('#Mobile').val() == '' ) {
+		$('.error-Mobile').text('Please enter your Mobile...');
+		proceed = false;
+	}
+	if ( $('#Idnumber').val() == '' ) {
+		$('.error-Idnumber').text('Please enter your Idnumber...');
+		proceed = false;
+	}
+	if ( $('#DateOfBirth').val() == '' ) {
+		$('.error-DateOfBirth').text('Please enter your DateOfBirth...');
+		proceed = false;
+	}
+
+
+	var ajaxData = {
+		Name: $('#Name').val(),
+		Surname: $('#Surname').val(),
+		Email: $('#Email').val(),
+		Mobile: $('#Mobile').val(),
+		Idnumber: $('#Idnumber').val(),
+		DateOfBirth: $('#DateOfBirth').val(),
+		Language: $('#Language').val(),
+		Interest: $('#Interest').val()
+	}
+	console.log(ajaxData);
+
+	if ( proceed ) {
+		$.ajax({
+
+			method: 'get',
+			url: '/updatePersonRow',
+			data: ajaxData,
+			dataType: 'json',
+			success: function(response) {
+				console.log(response);
+			},
+			error: function(e) {
+				console.log(e);
+			}
+		});
+	}
+
+}
+
+function IsEmail(email) {
+	var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	if (!regex.test(email)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function populateDOB(){
+	$('#DateOfBirth').datepicker({
+		dateFormat:'yy-mm-dd',
+		changeMonth:true,
+		changeYear:true,
+		showOn: "focus",
+		minDate: new Date(1999, 10 - 1, 25)
+	});
+	$('#DateOfBirth').datepicker('show');
+}
 
 function closeEditModal () {
 	$("#editPersonModal").modal("hide"); 
@@ -26,22 +235,75 @@ function closeDeleteModal () {
 
 function editPerson(evt){
 
+	// console.log('edit person');
 	$('#editPersonModal').modal("show");
 	let person_id = $(this).closest('tr').attr('data-id');
-	// $('#person_id').val(person_id);
-	console.log(person_id);
-	// populateEventEditForm(event_id);
+	// console.log(person_id);
+	populatePersonEditForm(person_id);
+
+}
+
+function populatePersonEditForm(person_id) {
+	populateDropDowns(person_id);
+}
+
+function populateDropDowns(person_id) {
+
+	var ajaxData = {person_id: person_id};
+
+	$.ajax({
+
+		method: 'get',
+		url: '/getAppSettings',
+		data: ajaxData,
+		dataType: 'json',
+		success: function(response) {
+
+			console.log(response.personInfo.person);
+			populateFormData(response.personInfo.person[0]);
+			$('#placeInterestDropdown').html('');
+			var lang = $("#Language");
+			var selectedText = '';
+			var selectId = 0;
+
+			$.each(response.lang, function(index,data2){
+				lang.append(new Option(data2.Name, data2.id));
+			});
+
+			$("#Language option[value='"+response.personInfo.person[0].languageId+"']").attr("selected", "selected");
+
+			var options = '';
+
+		},
+		error: function(e) {
+			console.log(e);
+		}
+	});
+}
+
+function populateFormData(personData) {
+
+	$('#Name').val(personData.Name);
+	$('#Surname').val(personData.Surname);
+	$('#Email').val(personData.Email);
+	$('#Mobile').val(personData.Mobile);
+	$('#Idnumber').val(personData.Idnumber);
+	$('#DateOfBirth').val(personData.DateOfBirth);
 
 }
 
 function deletePerson(evt){
 
-	console.log('deleteperson');
 	$('#deletePersonModal').modal("show");
 	let person_id = $(this).closest('tr').attr('data-id');
-	console.log(person_id);
 	$('#person_id').val(person_id);
-	// deletePersonRow(person_id);
+
+}
+
+function deletePersonFunc () {
+
+	console.log($('#person_id').val());
+	deletePersonRow($('#person_id').val());
 
 }
 
@@ -57,14 +319,15 @@ function deletePersonRow(personid) {
 		dataType: 'json',
 		success: function(response) {
 
+			console.log(response);
+
 			if (response.code === 1) {
-				toastr.success(response.msg + invLineId);
+				$('#deletePersonModal').modal("hide");
+				toastr.success(response.msg);
 				$('#' + invLineId).remove();
 			} else {
-				toastr.warning(response.msg + invLineId);
+				toastr.warning(response.msg);
 			}
-
-			updateInvoiceTotal($('#inv_id').val());
 
 		},
 		error: function(e) {
@@ -176,18 +439,18 @@ function loadPeople() {
 
 			var output = '';
 			$.each(response, function(data1,data2){
-				// person_id <= id
-				console.log(data2);
 				var row = peopleRow(
 					{
-						'id': data2.id, 
-						'DateOfBirth': data2.DateOfBirth, 
-						'Email': data2.Email, 
-						'Idnumber': data2.Idnumber, 
-						'Mobile': data2.Mobile,
-						'Name': data2.Name,
-						'Surname': data2.Surname,
-						'user_id': data2.user_id
+						'id': data2.person.id, 
+						'DateOfBirth': data2.person.DateOfBirth, 
+						'Email': data2.person.Email, 
+						'Idnumber': data2.person.Idnumber, 
+						'Mobile': data2.person.Mobile,
+						'Name': data2.person.Name,
+						'Surname': data2.person.Surname,
+						'user_id': data2.person.user_id,
+						'lang': (data2.language.length >= 1) ? data2.language[0].Name : "-----",
+						'interests': stringifyInterests(data2.interests)
 					}
 				);
 				output += row;
@@ -200,6 +463,18 @@ function loadPeople() {
 			console.log(e);
 		}
 	});
+}
+
+function stringifyInterests(interests) {
+	var output = '';
+	for (var j = 0; j < interests.length; j++ ) {
+		if ( j == interests.length - 1 ){
+			output += interests[j].Name;
+		} else {
+			output += interests[j].Name + '<br />';
+		}
+	}
+	return '<span style="font-size: 12px;">' + output + '</span>';
 }
 
 function emptyEventDataForm() {
@@ -242,8 +517,8 @@ function peopleRow (person) {
 	output += '<th>' + person.Email  + '</th>';
 	output += '<th>' + person.Idnumber  + '</th>';
 	output += '<th>' + person.DateOfBirth  + '</th>';
-	output += '<th>' + person.user_id  + '</th>';
-	output += '<th>' + person.user_id  + '</th>';
+	output += '<th>' + person.lang  + '</th>';
+	output += '<th>' + person.interests  + '</th>';
 	output += '<th>' + editAndSaveButtons() + '</th>';
 	output += '</tr>';
 	return output;
@@ -254,7 +529,7 @@ function editAndSaveButtons() {
 	// const eventDateObj = new Date(event_date);
 	// const currentDateObj = new Date();
 	var output = '<button class="btn btn-info editPerson">Edit</button>' + '&nbsp;'
-	output += '<button class="btn btn-danger deletePerson">' + 'Delete' + '</button>';
+	output += '<button class="btn btn-danger deletePerson">' + 'Del' + '</button>';
 	return output;
 
 }
