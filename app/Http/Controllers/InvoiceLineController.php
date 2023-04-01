@@ -186,6 +186,12 @@ class InvoiceLineController extends Controller
 
 	}
 
+	public function getInvoiceLines($invoice_id) {
+		// return InvoiceLine::where('invoice_id', $invoice_id)->get();
+		return InvoiceLine::join('products', 'invoice_lines.product_id', '=', 'products.id')->get(['invoice_lines.*', 'products.product_name', 'products.unitprice']);
+		// return $out;
+	}
+
 	private function buildInvoiceLines($invoicelines) {
 
 		$invoiceTotal = 0.00;

@@ -9,6 +9,7 @@ use App\Http\Controllers\EventDetailController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoiceLineController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PDFController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,11 @@ use App\Http\Controllers\ProductController;
 |
 */
 
-Route::get('/', function () { return view('welcome'); });
+Route::get('/', function () { 
+	return view('welcome'); 
+});
+
+
 
 Auth::routes();
 
@@ -63,24 +68,50 @@ Route::get('/getClient',						[ClientController::class, 'getClient']);
 
 Route::get('/getInvoiceLineDetails',			[InvoiceLineController::class, 'getInvoiceLineDetails']);
 Route::get('/getProductInfo',					[InvoiceLineController::class, 'getProductInfo']);
+Route::get('/retrieveProduct',					[InvoiceLineController::class, 'retrieveProduct']);
+Route::post('/updateInvoiceLine',				[InvoiceLineController::class, 'updateInvoiceLine']);
+Route::get('/getInvoiceLineInfo',				[InvoiceLineController::class, 'getInvoiceLineById']);
+Route::get('/deleteInvoiceLineData',			[InvoiceLineController::class, 'deleteInvoiceLineData']);
 
 Route::get('/updateSingleInvoiceField',			[InvoiceController::class, 'updateSingleInvoiceField']);
 Route::get('/invoice-list',						[InvoiceController::class, 'index']);
 Route::post('/add-invoice',						[InvoiceController::class, 'addInvoice'])->name('add.invoice');
 Route::get('/getInvoicesList',					[InvoiceController::class, 'getInvoicesList'])->name('get.invoices.list');
 Route::get('/getInvoiceDetails',				[InvoiceController::class, 'getInvoiceDetails']);
+Route::get('/my-demo-mail',						[InvoiceController::class, 'myDemoMail']);
+Route::get('/buildAndSendInvoice',				[InvoiceController::class, 'buildAndSendInvoice']);
+
+Route::get('/getInvoiceLinesCount',				[InvoiceController::class, 'getInvoiceLinesCount']);
 
 Route::get('/getProductServicesList',			[ProductController::class, 'getProductServicesList']);
 Route::post('/updateProductLine',				[ProductController::class, 'updateProductLine']);
 
-Route::get('/my-demo-mail',						[InvoiceController::class, 'myDemoMail']);
 
 Route::get('/email-test', function(){
+
+	
+
 	$details['email'] = 'bevanpaulse@gmail.com';
 	$details['to'] = 'bevanpaulse@gmail.com';
 	$details['name'] = 'Eli Bailey Paulse';
 	$details['subject'] = 'Hello Laravelcode';
+	$details['title'] = 'Tithle of the content of the Email...';
 
 	dispatch(new App\Jobs\SendEmailJob($details));
 	dd('done');
 });
+
+Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
+
+Route::get('loadSettingsPage',					[HomeController::class, 'loadSettingsPage']);
+Route::get('home',								[HomeController::class, 'home']);
+
+// Route::get('/getProductServicesList',			[ProductController::class, 'getProductServicesList']);
+// Route::post('/updateProductLine',				[ProductController::class, 'updateProductLine']);
+
+// Route::get('/email-test', 						[InvoiceController::class, 'SendTestEmail']);
+
+// Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
+
+// Route::get('loadSettingsPage',					[HomeController::class, 'loadSettingsPage']);
+// Route::get('home',								[HomeController::class, 'home']);

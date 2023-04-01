@@ -83,7 +83,6 @@ class EventController extends Controller
 	}
 
 	public function getEventsList(){
-
 		$events = Event::where('published', '=', $this->active)->get();
 		return response()->json(['details' => $events]);
 	}

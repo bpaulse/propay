@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+	console.log("ClientList");
+
 	toastr.options.preventDuplicates = false;
 
 	$("#clientinfo").select2();
@@ -81,7 +83,14 @@ $(document).ready(function() {
 
 	$(document).on('click', '.addClientForm', openClientAddModal);
 
+	$(document).on('click', '.closeEditClientModal', closeEditClientModal);
+
 });
+
+function closeEditClientModal () {
+	console.log('closeEditClientModal');
+	$('#addClientModal').modal('hide');
+}
 
 function addInvoiceForm(e) {
 

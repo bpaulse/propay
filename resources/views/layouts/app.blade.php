@@ -39,6 +39,7 @@
 
 	<script src="{{ asset('js/filter-multi-select-bundle.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('select2/dist/js/select2.min.js') }}" ></script>
+	<script type="text/javascript" src="{{ asset('js/appload.js') }}" ></script>
 	
 
 </head>
@@ -79,11 +80,14 @@
 								<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 									{{ Auth::user()->name }}
 								</a>
-
 								<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-									<a class="dropdown-item" href="{{ route('logout') }}"
-									   onclick="event.preventDefault();
-													 document.getElementById('logout-form').submit();">
+									<a class="dropdown-item loadHomepage">
+										{{ __('Home') }}
+									</a>
+									<a class="dropdown-item loadsettingspage">
+										{{ __('Settings') }}
+									</a>
+									<a class="dropdown-item" href="{{ route('logout') }}">
 										{{ __('Logout') }}
 									</a>
 
@@ -109,9 +113,10 @@
 	@stack('events_script')
 	@stack('eventDetail_script')
 	@stack('clientlist_script')
-	<!-- @stack('wodresults_script') -->
+	@stack('setting_script')
 	@stack('woddetails_script')
 	@stack('index_script')
 	<!-- $(document).on('click', '.addClient', openClientAddModal); -->
+
 </body>
 </html>

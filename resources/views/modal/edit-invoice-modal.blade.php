@@ -3,7 +3,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="editInvoiceModalLabel"><i class="icon-cog"></i> Edit Invoice</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="close closeEditInvoiceModal" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -138,8 +138,8 @@
 
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary saveInvoice">Update Invoice</button>
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<!-- <button type="button" class="btn btn-primary saveInvoice">Update Invoice Now</button> -->
+				<button type="button" class="btn btn-secondary closeEditInvoiceModal" data-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
@@ -149,15 +149,16 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="deleteInvoiceModalLabel">Edit Invoice</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<h5 class="modal-title" id="deleteInvoiceModalLabel">Delete Invoice</h5>
+				<button type="button" class="close closeDeleteInvoiceModal" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">Are you sure you want to delete the Invoice?</div>
+			<div class="modal-body" id="invoiceID" data-invoice_id="0"></div>
+
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary saveInvoice">Update Invoice</button>
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary deleteInvoiceButton">Delete Invoice</button>
+				<button type="button" class="btn btn-secondary closeDeleteInvoiceModal" data-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>

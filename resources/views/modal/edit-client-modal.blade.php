@@ -18,7 +18,7 @@
 							<td>
 								<div class="form-group">
 									<label for="name" class="col-form-label">Name:</label>
-									<input type="text" class="form-control" id="name" value="Bevan">
+									<input type="text" class="form-control" id="name" value="">
 								</div>
 							</td>
 							<td>

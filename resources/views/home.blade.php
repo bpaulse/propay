@@ -21,6 +21,7 @@
 						</div>
 
 						<div class="card-body">
+
 							@if (session('status'))
 								<div class="alert alert-success" role="alert">
 									{{ session('status') }}
@@ -28,9 +29,9 @@
 							@endif
 
 							<ul>
-								<li><a href="/events">Scoring</a></li>
+								<!-- <li><a href="/events">Scoring</a></li> -->
 								<li><a href="/invoice-list">Invoicing</a></li>
-								<li><a href="/person">Athletes</a></li>
+								<!-- <li><a href="/person">Athletes</a></li> -->
 							</ul>
 
 						</div>

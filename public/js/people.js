@@ -15,7 +15,10 @@ $(document).ready(function(){
 
 	loadPeople();
 
+	$(document).on('click', '.addPersonModal', addPersonModal);
+
 	$(document).on('click', '.editPerson', editPerson);
+
 	$(document).on('click', '.deletePerson', deletePerson);
 
 	$(document).on('click', '.closeEditModal', closeEditModal);
@@ -127,10 +130,11 @@ $(function () {
 	}
 });
 
-function updatePerson () {
+function addPersonModal() {
+	console.log('addPersonModal');
+}
 
-	// console.log('updatePerson');
-	// console.log($('#Interest').val());
+function updatePerson () {
 
 	var proceed = false;
 

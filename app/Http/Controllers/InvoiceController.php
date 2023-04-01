@@ -6,74 +6,102 @@ use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\InvoiceClient;
 use App\Models\Client;
-use App\Http\Controllers\pdfController;
+use App\Http\Controllers\PDFController;
 use Illuminate\Support\Facades\Validator;
-
-// use App\Http\Controllers\SendMailController;
-
-// use App\Jobs\SendMailJob;
-// use App\Mail\TestMail;
-use Mail;
-use App\Mail\MyDemoMail;
+use App\Http\Controllers\ClientController;
 
 class InvoiceController extends Controller
 {
+
+	private $pdfFileName;
+	private $invoiceId;
+	private $details = [];
+	private $message;
+
+	public function setMessage ($clientName, $user) {
+
+		$this->message = 'Good day [clientName],<br /><br />Please find attached the invoice for the service rendered/product(s) supplied.<br /><br />Should you have any questions or comments, please contact me immediately via email/messaging or telephonically.<br /><br />Many Regards.<br /><br />[user]';
+		$this->message = str_replace('[clientName]', $clientName, $this->message);
+		$this->message = str_replace('[user]', $user, $this->message);
+
+	}
+
+	public function getMessage () {
+		return $this->message;
+	}
+
+	public function setPdfFileName($filename){
+		$this->pdfFileName = $filename;
+	}
+
+	public function getPdfFileName(){
+		return $this->pdfFileName;
+	}
+	
+	public function setInvoiceId($filename){
+		$this->invoiceId = $filename;
+	}
+
+	public function getInvoiceId(){
+		return $this->invoiceId;
+	}
+
 	public function index () {
 		return view('invoice-list');
 	}
 
-	public function myDemoMail() {
-		$myEmail = 'bevanpaulse@gmail.com';
-		Mail::to($myEmail)->send(new MyDemoMail());
-		dd("Mail Send Successfully");
+	public function SendTestEmail (){
+
+		// getClientDetails
+		$clientController = new ClientController();
+		$clientDetails = $clientController->getClientInfo($this->getInvoiceId());
+
+		if (Auth()->check()) {
+
+			$authUserName = Auth()->user()->name;
+			$authUserEmail = Auth()->user()->email;
+
+			$this->setMessage($clientDetails->name, $authUserName);
+
+			$this->details['email'] = $authUserEmail;
+			$this->details['to'] = $clientDetails->email;
+
+			$this->details['name'] = $authUserName;
+			$this->details['subject'] = 'Invoice: #';
+			$this->details['emailText'] = $this->getMessage();
+			$this->details['filename'] = $this->getPdfFileName();
+
+			// var_dump($this->details);
+
+			$dispatch = dispatch(new \App\Jobs\SendEmailJob($this->details));
+
+			if ( $dispatch ) {
+				return response()->json(['message'=>'Mail Send Successfully!!']);
+			} else {
+				return response()->json(['message'=>'Error Sending Email!!']);
+			}
+		} else {
+			return redirect('/login');
+		}
+
+
 	}
-
-	// public function sendMail() {
-	// 	$details['to'] = 'bevanpaulse@gmail.com';
-	// 	$details['name'] = 'Receiver Name';
-	// 	$details['subject'] = 'Hello Laravelcode';
-	// 	$details['message'] = 'Here goes all message body.';
-
-	// 	SendMailJob::dispatch($details);
-
-	// 	return response('Email sent successfully');
-	// }
 
 	public function buildAndSendInvoice (Request $request) {
 
-		$invoice_id = $request->invoiceid;
+		$this->setInvoiceId($request->input('invoiceid'));
+
+		// print_r($request->input('invoiceid'));
+
 		$updateArr = [ 'status' => 1 ];
+		$pdf = new PDFController($this->getInvoiceId());
+		$pdfFileName = $pdf->generatePDF();
+		$this->setPdfFileName($pdfFileName);
 
-		// now update the status of the invoice to sent
-		$update = Invoice::where('id', $invoice_id)->update($updateArr);
+		// print_r('test pdf');
 
-		if ( $update ) {
-
-			$invoiceclient = InvoiceClient::where('invoice_id', $invoice_id)->firstOrFail();
-
-			$client = Client::where('id', $invoiceclient->client_id)->firstOrFail();
-
-			$data = [
-				'invoice_id' => $invoice_id,
-				'name' => $client->name . ' ' . $client->surname,
-				'email' => $client->email,
-				'subject' => 'Client Invoice: From My Business'
-			];
-
-			$sendMail = new SendMailController();
-			$sendMail->send_mail($data);
-
-			return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
-
-			// if ( $return['code'] === 1 ) {
-			// 	return response()->json(['code' => $return['code'], 'msg' => $return['msg'], 'data' => $invoice_id ]);
-			// } else {
-			// 	return response()->json(['code' => $return['code'], 'msg' => $return['msg'] ]);
-			// }
-
-		} else {
-			return response()->json(['code' => 2, 'msg' => 'Failure sending Invoice...']);
-		}
+		$this->SendTestEmail();
+		return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
 
 	}
 
@@ -92,7 +120,6 @@ class InvoiceController extends Controller
 		}
 
 	}
-
 
 	public function addInvoice(Request $request) {
 
@@ -119,7 +146,8 @@ class InvoiceController extends Controller
 				$invoiceData = [
 					'id' => $invoice->id,
 					'name' => $name, 
-					'desc' => $desc
+					'desc' => $desc,
+					'status' => 0
 				];
 
 				return response()->json([
@@ -161,10 +189,29 @@ class InvoiceController extends Controller
 
 	}
 
+	public function getInvoiceLinesCount(Request $request) {
+
+		// var_dump($request->inv_id);
+		$count = Invoice::find($request->inv_id)->invoiceline->count();
+
+		return response()->json(['details' => ['count' => $count, 'id' => $request->inv_id]]);
+	}
+
 	public function getInvoicesList() {
 
-		$invoices = Invoice::all();
-		return response()->json(['details' => $invoices]);
+		$invoices = Invoice::where('deleted', 0)->get();
+		$invoicelines = [];
+
+		foreach ( $invoices as $inv ) {
+			// var_dump($inv->invoiceline->count());
+			$element = [
+				'id' => $inv->id,
+				'count' => $inv->invoiceline->count()
+			];
+			array_push($invoicelines, $element);
+		}
+	
+		return response()->json(['details' => $invoices, 'invoicelines' => $invoicelines]);
 
 	}
 
@@ -172,17 +219,4 @@ class InvoiceController extends Controller
 		return view('print.invoice');
 	}
 
-	public function printPDF() {
-
-		// This  $data array will be passed to our PDF blade
-
-		$data = [
-			'title' => 'First PDF for Medium',
-			'heading' => 'Hello from 99Points.info',
-			'content' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.'
-		];
-
-		// $pdf = PDF::loadView('print.pdf', $data);  
-		// return $pdf->download('medium.pdf');
-	}
 }

@@ -59,10 +59,7 @@ class ClientController extends Controller
 
 	public function editClient (Request $request) {
 
-		// var_dump($request->name);
-		// var_dump($request->id);
 		$client = Client::find($request->id);
-		// var_dump($client);exit();
 
 		$client->name			= $request->name;
 		$client->surname 		= $request->surname;
@@ -83,6 +80,24 @@ class ClientController extends Controller
 			$return = ['code' => 0, 'msg' => 'Error updating Client'];
 		}
 		return response()->json($return);
+
+	}
+
+	public function getClientInvoiceInfo($invoiceId) {
+
+		return InvoiceClient::where('invoice_id', $invoiceId)->firstOrFail();
+
+	}
+
+	public function getClientInfo($invoiceId) {
+
+		$check = $this->getClientInvoiceInfo($invoiceId);
+
+		if ( $check ){
+			return $clients = Client::where('id', $check->client_id)->firstOrFail();
+		} else {
+			return false;
+		}
 
 	}
 

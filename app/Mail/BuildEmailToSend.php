@@ -13,6 +13,8 @@ class BuildEmailToSend extends Mailable
 
 	protected $details;
 
+	public $ds = DIRECTORY_SEPARATOR;
+
 	/**
 	 * Create a new message instance.
 	 *
@@ -27,14 +29,19 @@ class BuildEmailToSend extends Mailable
 	 *
 	 * @return $this
 	 */
-	public function build()
-	{
+	public function build() {
+
+		$pieces = explode($this->ds, $this->details['filename']);
+
+		// $emailText = 'This is the passthrough body text of the email...';
+
 		return $this->from($this->details['email'], $this->details['name'])
-					->subject($this->details['subject'])
-					->view('emails.send_mail')
-					->attach(public_path('pdf/invoice.pdf'), [
-						'as' => 'invoice.pdf',
-						'mime' => 'application/pdf',
-				   ]);
+			->subject($this->details['subject'])
+			->view('emails.send_mail')
+			->with(['myownvar'=> $this->details['emailText']])
+			->attach(
+				public_path($this->details['filename']),
+				['as' => $pieces[1],'mime' => 'application/pdf']
+			);
 	}
 }

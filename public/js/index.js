@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+	
 	toastr.options.preventDuplicates = false;
 
 	$("#clientinfo").select2();
@@ -50,7 +50,8 @@ $(document).ready(function() {
 
 	});
 
-	getInvoiceList();
+	// getInvoiceList();
+	// updateInvoiceLineCount();
 
 	$(document).on('click', '#add-invoice-line', function(e) {
 
@@ -322,8 +323,21 @@ $(document).ready(function() {
 		});
 	});
 
+	$(document).on('click', '.deleteInvoiceButton', function() {
+
+		console.log('deleteInvoiceButton');
+		// var id = $(this).closest('tr').attr('data-id');
+		// console.log('InvoiceID: ' + id);
+		// $('#deleteInvoiceModal').modal('show');
+
+	});
+
 	$(document).on('click', '.deleteInvoice', function() {
-		var id = $(this).closest('tr').attr('data-id');
+		var invoice_id = $(this).closest('tr').attr('data-id');
+		$('#deleteInvoiceModal').modal('show');
+		const modalQuestion = 'Are you sure you want to delete the Invoice (Inv # ' + invoice_id + ') ?';
+		$('#invoiceID').html( modalQuestion );
+		$('#invoiceID').attr("data-invoice_id", invoice_id);
 	});
 
 	$(document).on('keyup', '#unitprice', function(event) {
@@ -375,7 +389,28 @@ $(document).ready(function() {
 		$('tr[data-id="' + invoice_id + '"] th:nth-child(3)').text(invoice_name);
 		$('tr[data-id="' + invoice_id + '"] th:nth-child(4)').text(invoice_desc);
 
+
+		$.ajax({
+			method: 'get',
+			url: '/getInvoiceLinesCount',
+			data: { inv_id: invoice_id },
+			dataType: 'json',
+			contentType: false,
+			success: function(data) {
+				$('#first_item_' + invoice_id).text(invoice_id + "(" + data.details.count + ")");
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(xhr.status);
+				alert(thrownError);
+			}
+		});
+
+
 	});
+
+	$(document).on('click', '.closeEditInvoiceModal', closeEditInvoiceModal);
+
+	$(document).on('click', '.closeDeleteInvoiceModal', closeDeleteInvoiceModal);
 
 	$(document).on('click', '.editInvoice', function() {
 
@@ -433,6 +468,15 @@ $(document).ready(function() {
 
 });
 
+function closeEditInvoiceModal () {
+	console.log('closeEditInvoiceModal');
+	$('#editInvoiceModal').modal('hide');
+}
+
+function closeDeleteInvoiceModal () {
+	$('#deleteInvoiceModal').modal('hide');
+}
+
 function saveInvoiceField() {
 
 	let type = $(this).data('name');
@@ -465,6 +509,8 @@ function sendInvoice(e) {
 
 	e.preventDefault();
 	var id = $(this).closest('tr').attr('data-id');
+
+	console.log('SendInvoice');
 	console.log('id: ' + id);
 	buildAndSendInvoice(id);
 }
@@ -475,34 +521,34 @@ function buildAndSendInvoice(id) {
 		invoiceid: id
 	};
 
-	console.log(ajaxData);
+	var proceed = true;
 
-	$.ajax({
-		method: 'get',
-		url: '/buildAndSendInvoice',
-		data: ajaxData,
-		dataType: 'json',
-		beforeSend: function() {
-			$('#loading-div').show();
-		},
-		success: function(response) {
+	if ( proceed ) {
 
-			toastr.success(response.msg);
-			$('#loading-div').hide();
-			// if (response.code === 1) {
-			// 	toastr.success(response.msg);
-			// 	// console.log($('tr[data-id="' + response.data + '"] th:nth-child(2)').html());
-			// 	let html = '<img src="images/email.png" style="width: 35px;">';
-			// 	$('tr[data-id="' + response.data + '"] th:nth-child(2)').html(html);
-			// } else {
-			// 	toastr.warning(response.msg);
-			// }
-		},
-		error: function(e) {
-			$('#loading-div').hide();
-			console.log(e);
-		}
-	});
+		$.ajax({
+
+			method: 'get',
+			url: '/buildAndSendInvoice',
+			data: ajaxData,
+			dataType: 'json',
+			beforeSend: function() {
+				$('#loading-div').show();
+			},
+			success: function(response) {
+				toastr.success(response.msg);
+				$('#loading-div').hide();
+			},
+			error: function(e) {
+				$('#loading-div').hide();
+				console.log(e);
+				toastr.warning("Unable to send email...");
+			}
+
+		});
+
+	}
+
+
 }
 
 function deleteLineProduct() {
@@ -577,7 +623,6 @@ function tryMe(param1, param2) {
 function callbackTester(callback) {
 	callback();
 }
-
 
 async function deleteInvLine(invLineId) {
 
@@ -824,6 +869,8 @@ async function genericGet(data) {
 			contentType: false,
 		});
 
+		console.log(result);
+
 		return result;
 
 	} catch (error) {
@@ -833,14 +880,24 @@ async function genericGet(data) {
 }
 
 var goog = getInvoiceList().then(function(res) {
-	console.log('Bevan');
+	
 	var output = '';
-	$.each(res, function(data1, data2) {
-		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.status);
+
+	console.log(res);
+
+	$.each(res.details, function(data1, data2) {
+		console.log(data2);
+		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus);
 		output += row;
 	});
 	$('#tableData').html(output);
+
+	$.each(res.invoicelines, function(index, item){
+		$('#first_item_' + item.id).text(item.id + "(" + item.count + ")");
+	});
+
 });
+
 
 function getInvoiceList() {
 
@@ -853,7 +910,7 @@ function getInvoiceList() {
 		contentType: false,
 	};
 
-	return genericGet(data).then((returnValue) => returnValue.details);
+	return genericGet(data).then((returnValue) => returnValue );
 
 }
 
@@ -879,7 +936,7 @@ function retrieveProduct(productid) {
 
 function invoiceRow(invoiceId, invoiceName, invoiceDesc, invoiceStatus) {
 	return '<tr data-id="' + invoiceId + '">' + 
-	TableHCell(invoiceId) + 
+	TableHCellFirst(invoiceId) + 
 	TableHCell(lineStatus(invoiceStatus)) + 
 	TableHCell(invoiceName) + 
 	TableHCell(invoiceDesc) + 
@@ -891,9 +948,11 @@ function productRow(item) {
 }
 
 function lineStatus(invoiceStatus) {
+	console.log(invoiceStatus)
 	output = '';
 	if (invoiceStatus == 0) {
 		output = 'new_invoice.jfif';
+		// output = '';
 	} else if (invoiceStatus == 1) {
 		output = 'email.png';
 	} else {
@@ -939,6 +998,10 @@ function TableCell(val) {
 	return '<td>' + val + '</td>';
 }
 
+function TableHCellFirst(val) {
+	return '<th id="first_item_'+val+'">' + val + '</th>';
+}
+
 function TableHCell(val) {
 	return '<th>' + val + '</th>';
 }
@@ -970,5 +1033,4 @@ function deleteProduct() {
 
 function editAndSaveButtons() {
 	return '<button class="btn btn-info editInvoice"><i class="icon-pencil"></i></button>' + '&nbsp;' + '<button class="btn btn-danger deleteInvoice">' + '<i class="icon-trash"></i>' + '</button>' + '&nbsp;' + '<button class="btn btn-success sendInvoice">' + '<i class="icon-envelope"></i>' + '</button>';
-	// return '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop"><i class="icon-pencil"></i></button>' + '&nbsp;' + '<button class="btn btn-danger deleteInvoice">' + '<i class="icon-trash"></i>' + '</button>';
 }

@@ -150,4 +150,16 @@ class HomeController extends Controller
 		return view('events');
 	}
 
+	public function loadSettingsPage () {
+		return view('settings');
+	}
+
+	public function home () {
+		return view('home');
+	}
+
+	public function sumOfHourGlass() {
+		
+	}
+
 }
