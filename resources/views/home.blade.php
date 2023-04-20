@@ -31,6 +31,7 @@
 							<ul>
 								<!-- <li><a href="/events">Scoring</a></li> -->
 								<li><a href="/invoice-list">Invoicing</a></li>
+								<li><a href="/quote-list">Quoting</a></li>
 								<!-- <li><a href="/person">Athletes</a></li> -->
 							</ul>
 

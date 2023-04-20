@@ -83,12 +83,22 @@ $(document).ready(function() {
 
 	$(document).on('click', '.addClientForm', openClientAddModal);
 
-	$(document).on('click', '.closeEditClientModal', closeEditClientModal);
+	$(document).on('click', '.closeEditInvoiceModal', closeEditInvoiceModal);
+	$(document).on('click', '.closeAddClientModal', closeAddClientModal);
+
+	$('#add_name').keyup(populateCompanyNameField);
+	$('#add_surname').keyup(populateCompanyNameField);
 
 });
 
-function closeEditClientModal () {
-	console.log('closeEditClientModal');
+function closeEditInvoiceModal () {
+	console.log('closeEditInvoiceModal');
+	$('#editClientModal').modal('hide');
+}
+
+
+function closeAddClientModal () {
+	console.log('closeAddClientModal');
 	$('#addClientModal').modal('hide');
 }
 
@@ -148,38 +158,95 @@ function apply_pagination() {
 	});
 }
 
+function populateCompanyNameField () {
+
+	$('#add_companyname').val($('#add_name').val().trim() + ' ' + $('#add_surname').val().trim());
+
+}
+
+function isBlank( data ) {
+	return ( $.trim(data).length == 0 );
+}
+
 function submitClientAddForm(e) {
 
 	e.preventDefault();
-	// console.log('submitClientEditForm');
+	
+	const formData = new FormData();
+
+
+	// var files = $('#file')[0].files;
+
+	// console.log(file);
 
 	var form = $(this)[0];
 
-	ajaxData = {
-		id: $('#add_client_id').val(),
-		name: $('#add_name').val(),
-		surname: $('#add_surname').val(),
-		mobile: $('#add_mobile').val(),
-		email: $('#add_email').val(),
-		website: $('#add_website').val(),
-		landline: $('#add_landline').val(),
-		vat: $('#add_vat').val(),
-		companyreg: $('#add_companyreg').val(),
-		companyname: $('#add_companyname').val(),
-		address: $('#add_address').val(),
-		user_id: 1
-	}
+	// var formData = new FormData();
 
-	console.log(ajaxData);
+	// let formData = new FormData(this);
+
+	// if(files.length > 0){
+	// 	var fd = new FormData();
+	// 	$.ajax({
+    //         type:'POST',
+    //         url: $(fd).attr('action'),
+    //         data: fd,
+    //         contentType: false,
+    //         processData: false,
+	// 		headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+    //         success: (response) => {
+    //             if (response) {
+    //                 this.reset();
+    //                 alert('File has been uploaded successfully');
+    //             }
+    //         },
+    //         error: function(response){
+    //             $('#file-input-error').text(response.responseJSON.message);
+    //         }
+    //    });
+	// }
+
+	// ajaxData = {
+	// 	id: $('#add_client_id').val(),
+	// 	name: $('#add_name').val(),
+	// 	surname: $('#add_surname').val(),
+	// 	mobile: $('#add_mobile').val(),
+	// 	email: $('#add_email').val(),
+	// 	website: $('#add_website').val(),
+	// 	landline: $('#add_landline').val(),
+	// 	vat: $('#add_vat').val(),
+	// 	companyreg: $('#add_companyreg').val(),
+	// 	companyname: $('#add_companyname').val(),
+	// 	address: $('#add_address').val(),
+	// 	file: files,
+	// 	user_id: 1
+	// }
+
+	formData.append( 'file', $('#logo')[0].files[0] );
+
+	formData.append('id', $('#add_client_id').val());
+	formData.append('name', $('#add_name').val());
+	formData.append('surname', $('#add_surname').val());
+	formData.append('mobile', $('#add_mobile').val());
+	formData.append('email', $('#add_email').val());
+	formData.append('website', $('#add_website').val());
+	formData.append('landline', $('#add_landline').val());
+	formData.append('vat', $('#add_vat').val());
+	formData.append('companyreg', $('#add_companyreg').val());
+	formData.append('companyname', $('#add_companyname').val());
+	formData.append('address', $('#add_address').val());
+
 
 	$.ajax({
 		method: $(form).attr('method'),
 		url: $(form).attr('action'),
-		data: ajaxData,
+		data: formData,
 		headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+		enctype: 'multipart/form-data',
+		processData: false,
+		contentType: false,
+		cache: false,
 		success: function(response) {
-
-			console.log(response);
 
 			if (response.code === 1) {
 
@@ -205,6 +272,16 @@ function submitClientAddForm(e) {
 function openClientAddModal() {
 	$('#addClientModal').modal('show');
 	resetClientAddForm();
+
+	$("#add_name").val("asdlkfjasd");
+	$("#add_surname").val("asldkfjsd");
+	$("#add_mobile").val("0796968869");
+	$("#add_email").val("bevan@gmail.com");
+	$("#add_website").val("www.datanav.co.za");
+	$("#add_landline").val("0219064392");
+	$("#add_vat").val("14523654785");
+	$("#add_companyreg").val("2021/2323/asdfasd");
+	$("#add_companyname").val("asdfa sf asdf ");
 }
 
 function resetClientAddForm() {

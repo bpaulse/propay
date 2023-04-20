@@ -55,8 +55,6 @@ class PDFController extends Controller {
 		$invoicelinesObj = new InvoiceLineController();
 		$invLines = $invoicelinesObj->getInvoiceLines($this->invoiceid);
 
-		// var_dump($invLines);
-
 		$invoiceTotal = floatval(0.00);
 
 		foreach ( $invLines as $line ) {
@@ -75,7 +73,10 @@ class PDFController extends Controller {
 			'invoicelines' => $invLines,
 			'invoiceTotal' => number_format($invoiceTotal, 2),
 			'currency' => 'R',
-			'invoiceNumber' => 'INV_2393'
+			'invoiceNumber' => 'INV_2393',
+			'client' => $clientDetails,
+			'user' => $userDetails,
+			'image' => 'images/' . $client->
 		];
 
 		$pdf = PDF::loadView('pdf.pdf', $data);

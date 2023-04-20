@@ -50,9 +50,6 @@ $(document).ready(function() {
 
 	});
 
-	// getInvoiceList();
-	// updateInvoiceLineCount();
-
 	$(document).on('click', '#add-invoice-line', function(e) {
 
 		$('#lineupdateform').show();
@@ -66,6 +63,8 @@ $(document).ready(function() {
 			dataType: 'json',
 			contentType: false,
 			success: function(data) {
+				console.log("data");
+				console.log(data);
 				populateProductSelect(data.products);
 				// reset values
 				$('#quantityDesc').text(1);
@@ -325,14 +324,47 @@ $(document).ready(function() {
 
 	$(document).on('click', '.deleteInvoiceButton', function() {
 
-		console.log('deleteInvoiceButton');
-		// var id = $(this).closest('tr').attr('data-id');
-		// console.log('InvoiceID: ' + id);
-		// $('#deleteInvoiceModal').modal('show');
+		var invoiceID = $("#invoiceID").data('invoice_id');
+		console.log('InvoiceID: ' + invoiceID);
+		$('#deleteInvoiceModal').modal('show');
+
+		const ajaxData = {inv_id: invoiceID};
+
+		$.ajax({
+			method: 'GET',
+			url: '/deleteInvoice',
+			data: ajaxData,
+			dataType: 'json',
+			contentType: false,
+			success: function(data) {
+				// console.log(data)
+	
+				if (data.code) {
+					console.log(data);
+					// $('#' + data.product).remove();
+					toastr.success(data.msg);
+
+					console.log('id');
+					console.log(data.invoice_id);
+
+					$('.invoiceline[data-id="'+data.invoice_id+'"]').remove();
+
+					$('#deleteInvoiceModal').modal('hide');
+
+				} else {
+					toastr.warning(data.msg);
+				}
+	
+			},
+			error: function(e) {
+				console.log(e);
+			}
+		});
 
 	});
 
 	$(document).on('click', '.deleteInvoice', function() {
+		console.log('deleteInvoice');
 		var invoice_id = $(this).closest('tr').attr('data-id');
 		$('#deleteInvoiceModal').modal('show');
 		const modalQuestion = 'Are you sure you want to delete the Invoice (Inv # ' + invoice_id + ') ?';
@@ -409,8 +441,9 @@ $(document).ready(function() {
 	});
 
 	$(document).on('click', '.closeEditInvoiceModal', closeEditInvoiceModal);
-
 	$(document).on('click', '.closeDeleteInvoiceModal', closeDeleteInvoiceModal);
+
+	$(document).on('click', '.closeProductModal', closeProductModal);
 
 	$(document).on('click', '.editInvoice', function() {
 
@@ -468,6 +501,11 @@ $(document).ready(function() {
 
 });
 
+function closeProductModal () {
+	console.log('closeProductModal');
+	$('#productModal').modal('hide');
+}
+
 function closeEditInvoiceModal () {
 	console.log('closeEditInvoiceModal');
 	$('#editInvoiceModal').modal('hide');
@@ -512,6 +550,7 @@ function sendInvoice(e) {
 
 	console.log('SendInvoice');
 	console.log('id: ' + id);
+
 	buildAndSendInvoice(id);
 }
 
@@ -869,7 +908,7 @@ async function genericGet(data) {
 			contentType: false,
 		});
 
-		console.log(result);
+		// console.log(result);
 
 		return result;
 
@@ -883,10 +922,10 @@ var goog = getInvoiceList().then(function(res) {
 	
 	var output = '';
 
-	console.log(res);
+	// console.log(res);
 
 	$.each(res.details, function(data1, data2) {
-		console.log(data2);
+		// console.log(data2);
 		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus);
 		output += row;
 	});
@@ -935,7 +974,7 @@ function retrieveProduct(productid) {
 }
 
 function invoiceRow(invoiceId, invoiceName, invoiceDesc, invoiceStatus) {
-	return '<tr data-id="' + invoiceId + '">' + 
+	return '<tr class="invoiceline" data-id="' + invoiceId + '">' + 
 	TableHCellFirst(invoiceId) + 
 	TableHCell(lineStatus(invoiceStatus)) + 
 	TableHCell(invoiceName) + 
@@ -948,7 +987,7 @@ function productRow(item) {
 }
 
 function lineStatus(invoiceStatus) {
-	console.log(invoiceStatus)
+	// console.log(invoiceStatus)
 	output = '';
 	if (invoiceStatus == 0) {
 		output = 'new_invoice.jfif';

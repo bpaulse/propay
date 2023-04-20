@@ -27,7 +27,7 @@
 								</div>
 							@else
 								<div>
-									Settings
+									Settings sdsd
 								</div>
 							@endif
 

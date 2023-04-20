@@ -3,7 +3,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="editClientModalLabel"><i class="icon-cog"></i> Edit Client</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="close closeEditInvoiceModal" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -91,7 +91,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="submit" class="btn btn-primary editClientSubmit">Update</button>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-secondary closeEditInvoiceModal" data-dismiss="modal">Close</button>
 				</div>
 			</form>
 		</div>

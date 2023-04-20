@@ -145,77 +145,72 @@
 </style>
 
 </head>
-	<body>
-		<header class="clearfix">
-			
-			<div id="logo">
-				<img src="{{ asset($image) }}">
+<body>
+	<header class="clearfix">
+		
+		<div id="logo">
+			<img src="{{ asset('images/logo.png') }}">
+		</div>
+
+		<div style="width: 90%;">
+			<h1>INVOICE#: {{$invoiceNumber}}</h1>
+		</div>
+
+		<div style="width: 90%;">
+			<div id="company" class="clearfix">
+				<div>Company Name</div>
+				<div>455 Foggy Heights,<br /> AZ 85004, US</div>
+				<div>(602) 519-0450</div>
+				<div><a href="mailto:company@example.com">company@example.com</a></div>
 			</div>
 
-			<div style="width: 90%;">
-				<h2>INVOICE#: {{$invoiceNumber}}</h2>
+			<div id="project">
+				<div><span>PROJECT</span> Website development</div>
+				<div><span>CLIENT</span> John Doe</div>
+				<div><span>ADDRESS</span> 796 Silver Harbour, TX 79273, US</div>
+				<div><span>EMAIL</span> <a href="mailto:john@example.com">john@example.com</a></div>
+				<div><span>DATE</span> {{ $date }}</div>
+				<div><span>DUE DATE</span> September 17, 2015</div>
 			</div>
+		</div>
+    </header>
+    <main>
+      <table border="1">
+        <thead>
+          <tr>
+            <th class="service" colspan="2" style="width: 50%;">DESCRIPTION</th>
+            <th style="width: 15%;">PRICE</th>
+            <th style="width: 5%;">QTY</th>
+            <th style="width: 30%;">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
 
-			<div style="width: 90%;">
-				<div id="company" class="clearfix">
-					<div>{{$user->companyname}}</div>
-					<div>{{$user->Name}}  {{$user->Surname}}</div>
-					<div>{{$user->address}}</div>
-					<div>{{$user->Mobile}}</div>
-					<div><a href="mailto:{{$user->Email}}">{{$user->Email}}</a></div>
-					<div>{{$user->vat}}</div>
-				</div>
+			@foreach ($invoicelines as $item)
 
-				<div>
-					<div id="project">
-						<div><span>COMPANY</span> {{$client->companyname}}</div>
-						<div><span>Name</span> {{$client->name}} {{$client->surname}}</div>
-						<div><span>ADDRESS</span> {{$client->address}}</div>
-						<div><span>EMAIL</span> <a href="mailto:{{$client->email}}">{{$client->email}}</a></div>
-						<div><span>MOBILE</span> {{ $client->mobile }}</div>
-						<div><span>DATE</span> {{ $date }}</div>
-					</div>
-				</div>
-			</div>
-		</header>
-		<main>
-			<table>
-				<thead>
-					<tr>
-						<th class="service" colspan="2" style="width: 60%;">DESCRIPTION</th>
-						<th style="width: 15%;">PRICE</th>
-						<th style="width: 5%;">QTY</th>
-						<th style="width: 20%;">TOTAL</th>
-					</tr>
-				</thead>
-				<tbody>
+			<!-- <tr>
+		 	<td class="service" colspan="2">{{ $item->product_name }}</td>
+		 	<td class="unit">{{ $currency }} {{ $item->unitprice }}</td>
+		 	<td class="qty">{{ $item->quantity }}</td>
+		 	<td class="total">{{ $currency }} {{ $item->linetotal }}</td>
+		   </tr> -->
 
-					@foreach ($invoicelines as $item)
+			@endforeach
 
-						<tr>
-							<td class="service" colspan="2">{{ $item->product_name }}</td>
-							<td class="unit">{{ $currency }} {{ $item->unitprice }}</td>
-							<td class="qty">{{ $item->quantity }}</td>
-							<td class="total">{{ $currency }} {{ $item->linetotal }}</td>
-						</tr>
-
-					@endforeach
-
-					<tr>
-						<td colspan="4" class="grand total">GRAND TOTAL</td>
-						<td class="grand total">{{ $currency }} {{ $invoiceTotal }}</td>
-					</tr>
-				</tbody>
-			</table>
-			<div id="notices">
-				<div>NOTICE:</div>
-				<div class="notice">Banking details:</div>
-				<div class="notice">{{$user->BankingDetails}}</div>
-
-			</div>
-		</main>
-		<footer>
-			Invoice was created on the Datanav NavBilling and is valid without the signature and seal.
-		</footer>
-	</body>
+          <tr>
+            <td colspan="4" class="grand total">GRAND TOTAL</td>
+            <td class="grand total">{{ $currency }} {{ $invoiceTotal }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="notices">
+        <div>NOTICE:</div>
+        <div class="notice">Banking details:</div>
+        <div class="notice"></div>
+      </div>
+    </main>
+    <footer>
+      Invoice was created on a the Datanav and is valid without the signature and seal.
+    </footer>
+  </body>
 </html>

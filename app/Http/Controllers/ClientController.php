@@ -7,28 +7,27 @@ use App\Models\Invoice;
 use App\Models\InvoiceClient;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Auth;
+
+use File;
+use Illuminate\Support\Facades\Storage;
+
 class ClientController extends Controller
 {
 
 	public function index () {
-		// $user_id = 1;
-		// $client = Client::paginate(5);
-		// return view('client-list',compact('client'));
 		return view('client-list');
 	}
 
 	public function getClientLineInfo(Request $request) {
-
-		$user_id = 1;
-		$clients = Client::where('user_id', $user_id)->get();
-
-		// var_dump($clients);
-
-		// $clients = Client::where('user_id', $request->user_id)->get();
+		$clients = Client::where('user_id', Auth::user()->id)->get();
 		return response()->json($clients);
 	}
 
 	public function addClient (Request $request) {
+
+		$fileName = time().'.'.$request->file->getClientOriginalExtension();
+		$request->file->move(public_path('/clientLogos'), $fileName);
 
 		$client = new Client();
 
@@ -42,7 +41,8 @@ class ClientController extends Controller
 		$client->companyreg 	= $request->companyreg;
 		$client->companyname 	= $request->companyname;
 		$client->address 		= $request->address;
-		$client->user_id 		= $request->user_id;
+		$client->user_id 		= Auth::user()->id;
+		$client->logo 			= $fileName;
 
 		$save = $client->save();
 

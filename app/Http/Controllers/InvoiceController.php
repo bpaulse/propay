@@ -10,6 +10,9 @@ use App\Http\Controllers\PDFController;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\ClientController;
 
+use Illuminate\Support\Facades\Auth;
+
+
 class InvoiceController extends Controller
 {
 
@@ -83,25 +86,43 @@ class InvoiceController extends Controller
 		} else {
 			return redirect('/login');
 		}
-
-
 	}
 
 	public function buildAndSendInvoice (Request $request) {
 
 		$this->setInvoiceId($request->input('invoiceid'));
 
-		// print_r($request->input('invoiceid'));
-
 		$updateArr = [ 'status' => 1 ];
 		$pdf = new PDFController($this->getInvoiceId());
 		$pdfFileName = $pdf->generatePDF();
 		$this->setPdfFileName($pdfFileName);
 
-		// print_r('test pdf');
+		// $this->SendTestEmail();
+		
+		// return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
 
-		$this->SendTestEmail();
-		return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
+	}
+
+	public function deleteInvoice(Request $request) {
+
+		$invoice_id = $request->inv_id;
+		// var_dump($invoice_id);
+
+		$deletedRow = Invoice::where('id', $invoice_id)->delete();
+
+		if ( $deletedRow ) {
+			$msg = 'You have successfully deleted Invoice ID = ' . $invoice_id;
+			$code = 1;
+		} else {
+			$msg = 'something went wrong deleting the Invoice with ID = ' . $invoice_id;
+			$code = 0;
+		}
+
+		return response()->json([
+			'code' => $code,
+			'msg' => $msg,
+			'invoice_id' => $invoice_id
+		]);
 
 	}
 
@@ -137,7 +158,7 @@ class InvoiceController extends Controller
 
 			$invoice->invoice_name = $name;
 			$invoice->invoice_desc = $desc;
-			$invoice->user_id = 1;
+			$invoice->user_id = Auth::user()->id;
 
 			$save = $invoice->save();
 
@@ -199,7 +220,19 @@ class InvoiceController extends Controller
 
 	public function getInvoicesList() {
 
-		$invoices = Invoice::where('deleted', 0)->get();
+		// if (Auth::check()) {
+		// 	var_dump("User is logged in...");
+		// }
+
+		// var_dump("user_id");
+		// var_dump(Auth::user()->id);
+
+		$invoices = Invoice::where([['deleted', '=', 0],['user_id', '=', Auth::user()->id]])->get();
+
+		// var_dump('invoices');
+		// var_dump($invoices);
+
+
 		$invoicelines = [];
 
 		foreach ( $invoices as $inv ) {

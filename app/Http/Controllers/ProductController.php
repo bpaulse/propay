@@ -12,7 +12,7 @@ class ProductController extends Controller
 	public function getProductServicesList() {
 		// Auth::user();
 		$user_id = 1;
-		$products = Product::where('user_id', $user_id)->get();
+		$products = Product::where('user_id', Auth::user()->id)->get();
 
 		return response()->json(['products' => $products]);
 
@@ -35,13 +35,15 @@ class ProductController extends Controller
 
 	public function updateProductLine(Request $request) {
 
-		// var_dump('updateProductLine');
-		// var_dump($request->product_id);
-
 		if ( $request->product_id == 0 ) {
 
-			// Add 
-			$product = Product::create($request->all());
+			$product = Product::create(
+				[
+					'product_name' => $request->product_name,
+					'unitprice' => $request->unitprice,
+					'user_id' => Auth::user()->id,
+				]
+			);
 
 			if ( $product ) {
 
@@ -60,6 +62,7 @@ class ProductController extends Controller
 
 			$product->product_name = $request->product_name;
 			$product->unitprice = $request->unitprice;
+			$product->user_id = Auth::user()->id;
 
 			$update = $product->save();
 

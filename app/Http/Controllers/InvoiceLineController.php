@@ -7,6 +7,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Traits\CalcTrait;
 
+use Illuminate\Support\Facades\Auth;
+
 class InvoiceLineController extends Controller
 {
 	use CalcTrait;
@@ -38,9 +40,7 @@ class InvoiceLineController extends Controller
 		// 2 - update failure
 		// 3 - update success
 
-		// var_dump('invoice_line_id: ');
-		// var_dump($request->invoice_line_id);
-		
+	
 
 		if ( $request->invoice_line_id == 0 ) {
 
@@ -107,27 +107,7 @@ class InvoiceLineController extends Controller
 				]);
 			}
 
-
 		}
-
-		// var_dump($save);
-
-		// if ( $save ){ 
-
-		// 	$newTotal = $this->calculateNewTotal($invoiceLine->Invoice->id);
-
-		// 	return response()->json([
-		// 		'code' => 1,
-		// 		'msg' => 'Invoice Line updated successfully!',
-		// 		'data' => ['invoiceLine' => $invoiceLine, 'products' => Product::all(), 'newTotal' => $newTotal ]
-		// 	]);
-		// } else {
-		// 	return response()->json([
-		// 		'code' => 0,
-		// 		'msg' => 'Something went wrong.',
-		// 		'data' => null
-		// 	]);
-		// }
 
 	}
 
@@ -150,8 +130,6 @@ class InvoiceLineController extends Controller
 		$invoice_line_id = $request->inv_line_id;
 		$invoicelineInfo = InvoiceLine::find($invoice_line_id);
 
-		// print_r($invoicelineInfo->product_id);
-
 		$products = Product::all();
 
 		$productUnitPrice = 0;
@@ -160,14 +138,14 @@ class InvoiceLineController extends Controller
 			if ( $product->id == $invoicelineInfo->product_id ) {
 				$productUnitPrice = $product->unitprice;
 			}
-			// var_dump($product->unitprice);
 		}
 
 		return response()->json([ 'invoicelineInfo' => $invoicelineInfo, 'unitprice' => $productUnitPrice, 'products' => $products ]);
 	}
 
 	public function getProductInfo() {
-		$products = Product::all();
+		$products = Product::where(['user_id' => Auth::user()->id])->get();
+		// var_dump($products);
 		return response()->json([ 'products' => $products ]);
 	}
 
@@ -187,9 +165,9 @@ class InvoiceLineController extends Controller
 	}
 
 	public function getInvoiceLines($invoice_id) {
-		// return InvoiceLine::where('invoice_id', $invoice_id)->get();
-		return InvoiceLine::join('products', 'invoice_lines.product_id', '=', 'products.id')->get(['invoice_lines.*', 'products.product_name', 'products.unitprice']);
-		// return $out;
+		return InvoiceLine::join('products', 'invoice_lines.product_id', '=', 'products.id')
+		->where('invoice_lines.invoice_id', $invoice_id)
+		->get(['invoice_lines.*', 'products.product_name', 'products.unitprice']);
 	}
 
 	private function buildInvoiceLines($invoicelines) {

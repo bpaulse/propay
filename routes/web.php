@@ -80,11 +80,14 @@ Route::get('/getInvoicesList',					[InvoiceController::class, 'getInvoicesList']
 Route::get('/getInvoiceDetails',				[InvoiceController::class, 'getInvoiceDetails']);
 Route::get('/my-demo-mail',						[InvoiceController::class, 'myDemoMail']);
 Route::get('/buildAndSendInvoice',				[InvoiceController::class, 'buildAndSendInvoice']);
+Route::get('/deleteInvoice',					[InvoiceController::class, 'deleteInvoice']);
 
 Route::get('/getInvoiceLinesCount',				[InvoiceController::class, 'getInvoiceLinesCount']);
 
 Route::get('/getProductServicesList',			[ProductController::class, 'getProductServicesList']);
 Route::post('/updateProductLine',				[ProductController::class, 'updateProductLine']);
+
+Route::post('/logout',							[LoginController::class, 'logout'])->name('logout');
 
 
 Route::get('/email-test', function(){
@@ -113,5 +116,14 @@ Route::get('home',								[HomeController::class, 'home']);
 
 // Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
 
-// Route::get('loadSettingsPage',					[HomeController::class, 'loadSettingsPage']);
-// Route::get('home',								[HomeController::class, 'home']);
+Route::get('send-mail', function () {
+
+	$details = [
+		'title' => 'Mail from ItSolutionStuff.com',
+		'body' => 'This is for testing email using smtp'
+	];
+
+	\Mail::to('bevanpaulse@gmail.com')->send(new \App\Mail\MyTestMail($details));
+	dd("Email is Sent.");
+
+});
