@@ -162,4 +162,16 @@ class HomeController extends Controller
 		
 	}
 
+	public function sendMailForUser () {
+
+		$details = [
+			'title' => 'Mail from ItSolutionStuff.com',
+			'body' => 'This is for testing email using smtp'
+		];
+	
+		\Mail::to('bevanpaulse@gmail.com')->send(new \App\Mail\MyTestMail($details));
+		dd("Email is Sent.");
+	
+	}
+
 }

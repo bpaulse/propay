@@ -97,7 +97,7 @@ class InvoiceController extends Controller
 		$pdfFileName = $pdf->generatePDF();
 		$this->setPdfFileName($pdfFileName);
 
-		// $this->SendTestEmail();
+		$this->SendTestEmail();
 		
 		// return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
 
@@ -220,31 +220,35 @@ class InvoiceController extends Controller
 
 	public function getInvoicesList() {
 
-		// if (Auth::check()) {
-		// 	var_dump("User is logged in...");
-		// }
-
-		// var_dump("user_id");
-		// var_dump(Auth::user()->id);
-
-		$invoices = Invoice::where([['deleted', '=', 0],['user_id', '=', Auth::user()->id]])->get();
-
-		// var_dump('invoices');
-		// var_dump($invoices);
-
-
+		$invoice = [];
 		$invoicelines = [];
 
-		foreach ( $invoices as $inv ) {
-			// var_dump($inv->invoiceline->count());
-			$element = [
-				'id' => $inv->id,
-				'count' => $inv->invoiceline->count()
-			];
-			array_push($invoicelines, $element);
-		}
+		if (Auth::check()) {
+			// var_dump("User is logged in...");
+
+
+			$invoice = Invoice::where([['deleted', '=', 0],['user_id', '=', Auth::user()->id]])->get();
+
+			foreach ( $invoice as $inv ) {
+				// var_dump($inv->invoiceline->count());
+				$element = [
+					'id' => $inv->id,
+					'count' => $inv->invoiceline->count()
+				];
+
+				// foreach( $inv->invoiceline as $invLine ) {
+					// dd($invLine);
+				// }
+
+				// dd($inv->invoiceline->id());
 	
-		return response()->json(['details' => $invoices, 'invoicelines' => $invoicelines]);
+				// echo "<br /><br />";
+				array_push($invoicelines, $element);
+			}
+
+		}
+
+		return response()->json(['details' => $invoice, 'invoicelines' => $invoicelines]);
 
 	}
 

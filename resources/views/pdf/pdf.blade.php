@@ -35,13 +35,12 @@
 
 	#logo {
 		width: 90%;
-	  text-align: center;
-	  margin-bottom: 10px;
-	  /* border: 1px solid black; */
+		text-align: center;
+		margin-bottom: 10px;
 	}
 
 	#logo img {
-	  width: 90px;
+		width: 600px;
 	}
 
 	h1 {

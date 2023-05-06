@@ -27,8 +27,11 @@
 	<script src="{{ asset('jquery/jquery-3.6.0.min.js') }}"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  
 	
-	<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<script src = "https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 	<script type="text/javascript" src="{{ asset('toastr/toastr.min.js') }}"></script>
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
@@ -40,7 +43,10 @@
 	<script src="{{ asset('js/filter-multi-select-bundle.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('select2/dist/js/select2.min.js') }}" ></script>
 	<script type="text/javascript" src="{{ asset('js/appload.js') }}" ></script>
-	
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 </head>
 <body>

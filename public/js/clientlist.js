@@ -123,13 +123,11 @@ function addInvoiceForm(e) {
 				$(form).find('span.error-text').text('');
 			},
 			success: function(response) {
-
-				if (response.code === 0) {
+					if (response.code === 0) {
 					$.each(response.error, function(prefix, val) {
 						$(form).find('span.' + prefix + '_error').text(val[0]);
 					});
 				} else {
-
 					$(form)[0].reset();
 					toastr.success(response.msg);
 					var invoice = response.data;

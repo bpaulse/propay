@@ -17,8 +17,9 @@
 								<i class="icon-list"></i> Invoices <span id="tableHeader"></span>
 							</div>
 							<div style="float: right; width: 50%; border: 0px solid black; text-align: right;">
-								<span class="addClient"><img src="{{ asset('images/client.png') }}" style="width: 5%;"></span>
-								<span class="addProduct"><img src="{{ asset('images/add-product.png') }}" style="width: 5%;"></span>
+								<span class="addClient"><img src="{{ asset('images/client.png') }}" style="width: 25px;"></span>
+								<span class="addProduct"><img src="{{ asset('images/add-product.png') }}" style="width: 25px;"></span>
+								<span class="statement"><img src="{{ asset('images/statement.png') }}" style="width: 25px;"></span>
 							</div>
 						</div>
 						<div class="card-body">

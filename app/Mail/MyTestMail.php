@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail;
+namespace App\MaiPPl;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MyTestMail extends Mailable
 {
+
 	use Queueable, SerializesModels;
 
 	public $details;
@@ -20,7 +21,6 @@ class MyTestMail extends Mailable
 	 */
 	public function __construct($details)
 	{
-		//
 		$this->details = $details;
 	}
 
@@ -34,4 +34,5 @@ class MyTestMail extends Mailable
 		// return $this->view('view.name');
 		return $this->subject('Mail from ItSolutionStuff.com')->view('emails.myTestMail');
 	}
+
 }

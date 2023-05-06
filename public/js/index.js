@@ -499,7 +499,20 @@ $(document).ready(function() {
 
 	$(document).on('click', '.addClient', openClientPage);
 
+	$(document).on('click', '.statement', openStatementPage);
+
+	$(document).on('click', '.backToInvoiceList', backToInvoiceList);
+
 });
+
+function backToInvoiceList(e) {
+	window.location.href = '/invoice-list';
+}
+
+function openStatementPage() {
+	console.log('openStatementPage');
+	window.location.href = '/statement-list';
+}
 
 function closeProductModal () {
 	console.log('closeProductModal');

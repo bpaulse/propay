@@ -67,16 +67,18 @@ class PDFController extends Controller {
 		$user = new PersonController();
 		$userDetails = $user->getPersonInfo(Auth::user()->id);
 
+		$paddedInvoiceNumber = $this->padInvoiceNumber($this->invoiceid);
+
 		$data = [
 			'title' => 'Welcome to datanav.com',
 			'date' => date('m/d/Y'),
 			'invoicelines' => $invLines,
 			'invoiceTotal' => number_format($invoiceTotal, 2),
 			'currency' => 'R',
-			'invoiceNumber' => 'INV_2393',
+			'invoiceNumber' => $paddedInvoiceNumber,
 			'client' => $clientDetails,
 			'user' => $userDetails,
-			'image' => 'images/' . $client->
+			'image' => 'clientLogos/' . $userDetails->logo
 		];
 
 		$pdf = PDF::loadView('pdf.pdf', $data);
@@ -86,6 +88,23 @@ class PDFController extends Controller {
 
 		return $fullpathName;
 
+	}
+
+	public function padInvoiceNumber($id) {
+		$prefix = 'INV_';
+		$zeros = '';
+		if ($id >= 0 && $id < 10) {
+			$zeros = '0000';
+		} else if ($id >= 10 && $id < 100) {
+			$zeros = '000';
+		} else if ($id >= 100 && $id < 1000) {
+			$zeros = '00';
+		} else if ($id >= 1000 && $id < 10000) {
+			$zeros = '0';
+		} else {
+			$zeros = '';
+		}
+		return $prefix . $zeros . $id;
 	}
 
 }

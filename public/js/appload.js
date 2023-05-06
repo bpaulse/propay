@@ -10,7 +10,6 @@ $(document).ready(function(){
 loadSettingsPage = () => {
 
 	console.log('loadSettingsPage');
-
 	document.location.href = 'loadSettingsPage';
 
 }

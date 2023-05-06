@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoiceLineController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\StatementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,7 @@ Route::get('/getWodsForEvent', 					[EventDetailController::class, 'getWodsForEv
 Route::post('/add-client',						[ClientController::class, 'addClient'])->name('add.client');
 Route::get('/getClientLineInfo',				[ClientController::class, 'getClientLineInfo']);
 Route::get('/client-list',						[ClientController::class, 'index'])->name('client.list');
+Route::get('/statement-list',					[StatementController::class, 'index']);
 Route::post('/edit-client',						[ClientController::class, 'editClient'])->name('edit.client');
 Route::get('/saveClientToInvoice',				[ClientController::class, 'saveClientToInvoice']);
 Route::get('/getClient',						[ClientController::class, 'getClient']);
@@ -102,6 +104,7 @@ Route::get('/email-test', function(){
 
 	dispatch(new App\Jobs\SendEmailJob($details));
 	dd('done');
+
 });
 
 Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
@@ -109,21 +112,4 @@ Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
 Route::get('loadSettingsPage',					[HomeController::class, 'loadSettingsPage']);
 Route::get('home',								[HomeController::class, 'home']);
 
-// Route::get('/getProductServicesList',			[ProductController::class, 'getProductServicesList']);
-// Route::post('/updateProductLine',				[ProductController::class, 'updateProductLine']);
-
-// Route::get('/email-test', 						[InvoiceController::class, 'SendTestEmail']);
-
-// Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
-
-Route::get('send-mail', function () {
-
-	$details = [
-		'title' => 'Mail from ItSolutionStuff.com',
-		'body' => 'This is for testing email using smtp'
-	];
-
-	\Mail::to('bevanpaulse@gmail.com')->send(new \App\Mail\MyTestMail($details));
-	dd("Email is Sent.");
-
-});
+Route::get('send-mail', 						[HomeController::class, 'sendMailForUser']);
