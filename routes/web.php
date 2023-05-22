@@ -94,13 +94,11 @@ Route::post('/logout',							[LoginController::class, 'logout'])->name('logout')
 
 Route::get('/email-test', function(){
 
-	
-
 	$details['email'] = 'bevanpaulse@gmail.com';
 	$details['to'] = 'bevanpaulse@gmail.com';
 	$details['name'] = 'Eli Bailey Paulse';
 	$details['subject'] = 'Hello Laravelcode';
-	$details['title'] = 'Tithle of the content of the Email...';
+	$details['title'] = 'Title of the content of the Email...';
 
 	dispatch(new App\Jobs\SendEmailJob($details));
 	dd('done');
