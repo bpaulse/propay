@@ -58,11 +58,14 @@
 										<th>#</th>
 										<th>Name</th>
 										<th>Description</th>
-										<th>Amount</th>
+										<th style="text-align: right;">Amount</th>
 									</thead>
 									<tbody id='tableData'></tbody>
 								</table>
 							</div>
+						</div>
+						<div style="border: 0px solid black; margin-bottom: 10px; text-align: right; margin-right: 30px;">
+							Total: <span id="total"></span>
 						</div>
 					</div>
 				</div>

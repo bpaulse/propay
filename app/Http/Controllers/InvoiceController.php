@@ -12,6 +12,9 @@ use App\Http\Controllers\ClientController;
 
 use Illuminate\Support\Facades\Auth;
 
+use App\Mail\SystemEmail;
+use Illuminate\Support\Facades\Mail;
+
 
 class InvoiceController extends Controller
 {
@@ -41,8 +44,8 @@ class InvoiceController extends Controller
 		return $this->pdfFileName;
 	}
 	
-	public function setInvoiceId($filename){
-		$this->invoiceId = $filename;
+	public function setInvoiceId($id){
+		$this->invoiceId = $id;
 	}
 
 	public function getInvoiceId(){
@@ -74,8 +77,6 @@ class InvoiceController extends Controller
 			$this->details['emailText'] = $this->getMessage();
 			$this->details['filename'] = $this->getPdfFileName();
 
-			// var_dump($this->details);
-
 			$dispatch = dispatch(new \App\Jobs\SendEmailJob($this->details));
 
 			if ( $dispatch ) {
@@ -86,21 +87,6 @@ class InvoiceController extends Controller
 		} else {
 			return redirect('/login');
 		}
-	}
-
-	public function buildAndSendInvoice (Request $request) {
-
-		$this->setInvoiceId($request->input('invoiceid'));
-
-		$updateArr = [ 'status' => 1 ];
-		$pdf = new PDFController($this->getInvoiceId());
-		$pdfFileName = $pdf->generatePDF();
-		$this->setPdfFileName($pdfFileName);
-
-		$this->SendTestEmail();
-		
-		// return response()->json(['code' => 1, 'msg' => 'Email has successfully been sent to your client mailbox!' ]);
-
 	}
 
 	public function deleteInvoice(Request $request) {
@@ -224,8 +210,6 @@ class InvoiceController extends Controller
 		$invoicelines = [];
 
 		if (Auth::check()) {
-			// var_dump("User is logged in...");
-
 
 			$invoice = Invoice::where([['deleted', '=', 0],['user_id', '=', Auth::user()->id]])->get();
 
@@ -236,13 +220,6 @@ class InvoiceController extends Controller
 					'count' => $inv->invoiceline->count()
 				];
 
-				// foreach( $inv->invoiceline as $invLine ) {
-					// dd($invLine);
-				// }
-
-				// dd($inv->invoiceline->id());
-	
-				// echo "<br /><br />";
 				array_push($invoicelines, $element);
 			}
 
@@ -254,6 +231,49 @@ class InvoiceController extends Controller
 
 	public function printInvoice () {
 		return view('print.invoice');
+	}
+
+	public function buildAndSendInvoice (Request $request) {
+
+		$this->setInvoiceId($request->input('invoiceid'));
+		$this->sendSystemEmail();
+
+	}
+
+	public function sendSystemEmail() {
+
+		if (Auth::check()) {
+
+			$pdf = new PDFController($this->getInvoiceId());
+			$pdfFileName = $pdf->generatePDF();
+
+			$this->setPdfFileName($pdfFileName);
+
+			$user = Auth::user();
+
+			// $attachment = public_path('pdf/invoice_1_06062023130611.pdf');
+			$attachment = public_path($pdfFileName);
+			$subject = 'navBill: Invoice';
+			$emailContentText = 'Dear {recipientName}, <br />\n\n Please find attached your invoice for the services rendered/Products purchases.<br />Thank you for your business.<br />Kind regards,<br />navBill Team';
+
+			Mail::to($user->email)->send(new SystemEmail(
+				[
+					'attachmentPath' => $attachment, 
+					'subject' => $subject,
+					'emailContentText' => $emailContentText,
+				]
+			));
+
+			if (Mail::failures()) {
+				return response()->json(['code' => 0, 'msg' => 'Something went wrong sending the email...']);
+			} else {
+				return response()->json(['code' => 1, 'msg' => 'Email sent successfully...']);
+			}
+
+		} else {
+			return redirect('/login');
+		}
+
 	}
 
 }

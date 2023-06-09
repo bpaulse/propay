@@ -204,19 +204,30 @@ async function genericGet(data) {
 var goog = getInvoiceList().then(function(res) {
 
 	var output = '';
+	let fullAmount = 0.00;
 
 	$.each(res.details, function(data1, data2) {
-		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus);
+		
+		const lineAmount = data2.invoiceline.reduce((acc, item) => acc + parseFloat(item.linetotal), 0);
+
+		fullAmount += lineAmount;
+
+		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus, lineAmount);
 		output += row;
+
 	});
+
 	$('#tableData').html(output);
+	$('#total').html('R' + ' ' + addCommas(fullAmount.toFixed(2)));
+	$('#total').css('font-weight', 'bold');
 
 	$.each(res.invoicelines, function(index, item){
 		$('#first_item_' + item.id).text(item.id + "(" + item.count + ")");
 	});
 
 });
-
+//physifpq
+//c!D25u5tdk6uu8
 
 function getInvoiceList() {
 
@@ -233,13 +244,12 @@ function getInvoiceList() {
 
 }
 
-function invoiceRow(invoiceId, invoiceName, invoiceDesc, invoiceStatus) {
+function invoiceRow(invoiceId, invoiceName, invoiceDesc, lineStatus, lineAmount) {
 	return '<tr class="invoiceline" data-id="' + invoiceId + '">' + 
 	TableHCellFirst(invoiceId) + 
-	// TableHCell(lineStatus(invoiceStatus)) + 
-	TableHCell(invoiceName) + 
-	TableHCell(invoiceDesc) + 
-	TableHCell('Numbers') + '</tr>';
+	TableHCell(invoiceName, 'left') + 
+	TableHCell(invoiceDesc, 'left') + 
+	TableHCell('R' + ' ' + (Math.round(lineAmount * 100) / 100).toFixed(2), 'right') + '</tr>';
 }
 
 function productRow(item) {
@@ -293,16 +303,16 @@ function updateInvoiceTotal(invoiceid) {
 
 }
 
-function TableCell(val) {
-	return '<td>' + val + '</td>';
+function TableCell(val, style) {
+	return '<td style="text-align: ' + style + ';">' + val + '</td>';
 }
 
 function TableHCellFirst(val) {
 	return '<th id="first_item_'+val+'">' + val + '</th>';
 }
 
-function TableHCell(val) {
-	return '<th>' + val + '</th>';
+function TableHCell(val, style) {
+	return '<th style="text-align: ' + style + ';">' + val + '</th>';
 }
 
 function actionInvoiceLine() {

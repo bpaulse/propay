@@ -37,7 +37,6 @@ class PDFController extends Controller {
 	}
 
 	public function generatePDF() {
-		// var_dump($this->getInvoiceId());
 		return $this->createPDF($this->createFileName());
 	}
 

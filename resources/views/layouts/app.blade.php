@@ -13,8 +13,10 @@
 	<link href="{{ asset('css/app.css') }}" rel="stylesheet">
 	<link rel="stylesheet" href="{{ asset('toastr/toastr.min.css') }}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/css/jquery-ui.css" rel="stylesheet">
+	<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/css/jquery-ui.css" rel="stylesheet"> -->
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 	<!-- <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}"> -->
+
 	<link rel="stylesheet" href="{{ asset('toastr/toastr.min.css') }}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 
@@ -28,10 +30,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
 
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+	<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"> -->
+	<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
   
 	
-	<script src = "https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+	<!-- <script src = "https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script> -->
 	<script type="text/javascript" src="{{ asset('toastr/toastr.min.js') }}"></script>
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
@@ -90,6 +93,11 @@
 									<a class="dropdown-item loadHomepage">
 										{{ __('Home') }}
 									</a>
+
+									<a class="dropdown-item loadInvoicePage">
+										{{ __('Invoices') }}
+									</a>
+
 									<a class="dropdown-item loadsettingspage">
 										{{ __('Settings') }}
 									</a>
@@ -122,7 +130,6 @@
 	@stack('setting_script')
 	@stack('woddetails_script')
 	@stack('index_script')
-	<!-- $(document).on('click', '.addClient', openClientAddModal); -->
 
 </body>
 </html>

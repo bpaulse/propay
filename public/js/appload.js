@@ -4,6 +4,7 @@ $(document).ready(function(){
 
 	$(document).on('click', '.loadsettingspage', loadSettingsPage);
 	$(document).on('click', '.loadHomepage', loadHomepage);
+	$(document).on('click', '.loadInvoicePage', loadInvoicePage);
 
 });
 
@@ -18,5 +19,12 @@ loadHomepage = () => {
 
 	console.log('loadHomepage');
 	document.location.href = 'home';
+
+}
+
+loadInvoicePage = () => {
+
+	console.log('loadInvoicePage');
+	document.location.href = '/invoice-list';
 
 }

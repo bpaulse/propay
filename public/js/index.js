@@ -560,11 +560,8 @@ function sendInvoice(e) {
 
 	e.preventDefault();
 	var id = $(this).closest('tr').attr('data-id');
-
-	console.log('SendInvoice');
-	console.log('id: ' + id);
-
 	buildAndSendInvoice(id);
+
 }
 
 function buildAndSendInvoice(id) {

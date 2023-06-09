@@ -11,6 +11,7 @@ use App\Http\Controllers\InvoiceLineController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\StatementController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +83,10 @@ Route::get('/getInvoicesList',					[InvoiceController::class, 'getInvoicesList']
 Route::get('/getInvoiceDetails',				[InvoiceController::class, 'getInvoiceDetails']);
 Route::get('/my-demo-mail',						[InvoiceController::class, 'myDemoMail']);
 Route::get('/buildAndSendInvoice',				[InvoiceController::class, 'buildAndSendInvoice']);
+// Route::get('/buildAndSendInvoice',				[InvoiceController::class, 'sendSystemEmail']);
 Route::get('/deleteInvoice',					[InvoiceController::class, 'deleteInvoice']);
+
+Route::get('/getUserDetailsInfo',				[UserController::class, 'getUserDetailsInfo']);
 
 Route::get('/getInvoiceLinesCount',				[InvoiceController::class, 'getInvoiceLinesCount']);
 
@@ -104,6 +108,9 @@ Route::get('/email-test', function(){
 	dd('done');
 
 });
+
+Route::get('/send-system-mail',					[InvoiceController::class, 'sendSystemEmail']);
+
 
 Route::get('generate-pdf',						[PDFController::class, 'generatePDF']);
 
