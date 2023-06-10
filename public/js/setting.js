@@ -28,7 +28,9 @@ $(document).ready(function(){
 			reader.onload = function(e) {
 				console.log(e.target.result);
 				let previewImage = $('<img>').attr('src', e.target.result);
-				console.log(previewImage);
+				// console.log(previewImage);
+				let styles = { 'width': '150px' };
+				previewImage.css(styles);		
 				$('#file-preview').empty().append(previewImage);
 				console.log('render file');
 			};
@@ -83,18 +85,15 @@ function populateFields(data) {
 	$('#user_address').val(data.detail.address);
 	$('#user_banking').val(data.detail.BankingDetails);
 
-	// $("#file-preview").attr("src", 'clientLogos/'+data.detail.logo);
-
 	
-	let attributes  = {
-		'src': 'clientLogos/'+data.detail.logo,
-		''
-	}
-	
-	let previewImage = $('<img>').attr();
+	let attributes  = { 'src': 'clientLogos/'+data.detail.logo }
+	let styles = { 'width': '150px' }
+	let previewImage = $('<img>').attr(attributes);
+	previewImage.css(styles);
 	$('#file-preview').empty().append(previewImage);
-	
-	// $("input:file").val('clientLogos/'+data.detail.logo);
+
+	// disable submit button 
+	$('.saveClient').attr('disabled', true);
 
 }
 
