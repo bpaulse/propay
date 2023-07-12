@@ -1,6 +1,25 @@
 $(document).ready(function() {
 
-	$('.datepicker').datepicker({ startDate:'-3d' });
+	$("#filterBtn"). attr("disabled", true);
+
+	$('.selectpicker').selectpicker();
+	$('#selectpicker').on('change', selectStatusChange);
+
+	$('.preselectPeriod').selectpicker();
+	$('#preselectPeriod').on('change', preselectPeriodChange);
+
+	var from = $('#fromDate').datepicker({
+		dateFormat: 'yy-mm-dd',
+		changeMonth: true
+	}).on('change', function() {
+		to.datepicker('option', 'minDate', getDate(this));
+	}),
+	to = $('#toDate').datepicker({
+		dateFormat: 'yy-mm-dd',
+		changeMonth: true
+	}).on('change', function() {
+		from.datepicker('option', 'maxDate', getDate(this));
+	});
 	
 	toastr.options.preventDuplicates = false;
 
@@ -19,7 +38,298 @@ $(document).ready(function() {
 
 	$(document).on('click', '.backToInvoiceList', backToInvoiceList);
 
+	$(document).on('click', '#filterBtn', filterInvoices);
+
+	$(document).on('click', '#printPDFStatement', printPDFStatement);
+
 });
+
+
+function printPDFStatement () {
+	console.log('printPDFStatement');
+
+	var selectedText = $('#selectpicker option:selected').text();
+	var selectID = $('#selectpicker option:selected').val();
+
+	console.log('selectedText: ' + selectedText);
+	console.log('selectedID: ' + selectID);
+
+	const fromDateStr = ( isDate($('#fromDate').val()) ? $('#fromDate').val() : 0);
+	const toDateStr = ( isDate($('#toDate').val()) ? $('#toDate').val() : 0);
+
+	console.log('Dates');
+	console.log(fromDateStr, toDateStr);
+
+
+}
+
+function isDate(value) {
+	// Create a new Date object from the value
+	const date = new Date(value);
+  
+	// Check if the date is valid
+	// The getTime() method returns NaN for an invalid date
+	return !isNaN(date.getTime());
+}
+
+function filterInvoices (e) {
+
+	e.preventDefault();
+	console.log('filterInvoices');
+
+	var selectedText = $('#selectpicker option:selected').text();
+	var selectID = $('#selectpicker option:selected').val();
+
+	console.log('selectedText: ' + selectedText);
+	console.log('selectedID: ' + selectID);
+
+	const fromDateStr = ( isDate($('#fromDate').val()) ? $('#fromDate').val() : 0);
+	const toDateStr = ( isDate($('#toDate').val()) ? $('#toDate').val() : 0);
+
+	console.log('Dates');
+	console.log(fromDateStr, toDateStr);
+
+	if ( fromDateStr == 0 || toDateStr == 0 ) {
+		console.log('dates will be excluded...');
+	} else {
+		console.log('Dates are added...');
+	}
+
+
+	if ( selectID == null ) {
+		toastr.error('Please select a status');
+	} else {
+
+		$.ajax({
+			method: 'get',
+			url: '/filterInvoices',
+			data: { status: selectID, fromDate: fromDateStr, toDate: toDateStr },
+			dataType: 'json',
+			contentType: false,
+			beforeSend: function() {
+				$('#loading-div').show();
+			},
+			success: function(res) {
+
+				console.log(res);
+
+				$('#tableData').html('');
+
+				var output = '';
+				let fullAmount = 0.00;
+			
+				$.each(res.details, function(data1, data2) {
+					
+					const lineAmount = data2.invoiceline.reduce((acc, item) => acc + parseFloat(item.linetotal), 0);
+					fullAmount += lineAmount;
+					var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus, lineAmount);
+					output += row;
+			
+				});
+			
+				$('#tableData').html(output);
+				$('#total').html('R' + ' ' + addCommas(fullAmount.toFixed(2)));
+				$('#total').css('font-weight', 'bold');
+			
+				$.each(res.invoicelines, function(index, item){
+					$('#first_item_' + item.id).text(item.id + "(" + item.count + ")");
+				});
+			
+
+
+				$('#loading-div').hide();
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(xhr.status);
+				alert(thrownError);
+			}
+		});
+
+	}
+
+}
+
+
+function preselectPeriodChange() {
+	console.log('preselectPeriodChange');
+	var period = $(this).val();
+	console.log('period: ' + period);
+
+	if ( period == 0 ) {
+		console.log('Yesterday');
+		setYesterdayDates();
+	} else if ( period == 1 ) {
+		console.log('this week');
+		setThisWeekDates();
+	} else if ( period == 2 ) {
+		console.log('last week');
+		setPreviousWeekDates();
+	} else if ( period == 3 ) {
+		console.log('this month');
+		setThisMonthDates();
+		// console.log("Start date:", lastMonthDates.start);
+		// console.log("End date:", lastMonthDates.end);
+	} else if ( period == 4 ) {
+		console.log('last month');
+		setLastMonthDates();
+	}
+
+}
+
+function setYesterdayDates() {
+	const currentDate = new Date();
+
+	// Calculate yesterday's date
+	const yesterday = new Date(currentDate);
+	yesterday.setDate(currentDate.getDate() - 1);
+
+	// Format the date as a string (YYYY-MM-DD)
+	const formattedYesterday = yesterday.toISOString().slice(0, 10);
+
+	console.log(formattedYesterday);
+
+	$('#fromDate').val(formattedYesterday);
+	$('#toDate').val(formattedYesterday);
+}
+
+function setThisMonthDates() {
+
+	var currentDate = new Date(); // Get the current date
+	var currentMonth = currentDate.getMonth(); // Get the current month (0-11)
+	var currentYear = currentDate.getFullYear(); // Get the current year
+
+
+	// If the previous month is December, subtract 1 from the current year
+	var previousYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+	// Create a new Date object for the first day of the previous month
+	var firstDayOfCurrentMonth = new Date(previousYear, currentMonth, 2);
+
+
+	// Format the dates as strings in the format "YYYY-MM-DD"
+	var startDate = firstDayOfCurrentMonth.toISOString().split('T')[0];
+	console.log(startDate);
+
+	const endDate = currentDate.toISOString().slice(0, 10);
+
+	$('#fromDate').val(startDate);
+	$('#toDate').val(endDate);
+
+	// return {
+	// 	start: startDate,
+	// 	end: endDate
+	// };
+
+}
+
+
+function setLastMonthDates() {
+
+	var currentDate = new Date(); // Get the current date
+	var currentMonth = currentDate.getMonth(); // Get the current month (0-11)
+	var currentYear = currentDate.getFullYear(); // Get the current year
+
+	// Subtract 1 from the current month to get the previous month
+	var previousMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+
+	// If the previous month is December, subtract 1 from the current year
+	var previousYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+	// Create a new Date object for the first day of the previous month
+	var firstDayOfPreviousMonth = new Date(previousYear, previousMonth, 2);
+
+	// Create a new Date object for the last day of the previous month
+	var lastDayOfPreviousMonth = new Date(previousYear, previousMonth + 1, 0);
+
+	// Format the dates as strings in the format "YYYY-MM-DD"
+	var startDate = firstDayOfPreviousMonth.toISOString().split('T')[0];
+
+	var endDate = lastDayOfPreviousMonth.toISOString().split('T')[0];
+
+	$('#fromDate').val(startDate);
+	$('#toDate').val(endDate);
+
+	// return {
+	// 	start: startDate,
+	// 	end: endDate
+	// };
+
+}
+
+function setThisWeekDates() {
+	const currentDate = new Date();
+
+	// Calculate the start date of the previous week
+
+	const startOfCurrentWeek = new Date(currentDate);
+	startOfCurrentWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Set to the current Sunday
+
+	// Format the start date as a string (YYYY-MM-DD)
+	const formattedStartDate = startOfCurrentWeek.toISOString().slice(0, 10);
+
+	const formatcurrentDate = currentDate.toISOString().slice(0, 10);
+
+	$('#fromDate').val(formattedStartDate);
+	$('#toDate').val(formatcurrentDate);
+}
+
+function setPreviousWeekDates() {
+	const currentDate = new Date();
+
+	// Calculate the start date of the previous week
+	const startOfPreviousWeek = new Date(currentDate);
+	startOfPreviousWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the previous Sunday
+
+	// Calculate the end date of the previous week
+	const endOfPreviousWeek = new Date(startOfPreviousWeek);
+	endOfPreviousWeek.setDate(startOfPreviousWeek.getDate() + 6); // Set to the following Saturday
+
+	// Format the dates as strings (YYYY-MM-DD)
+	const formattedStartDate = startOfPreviousWeek.toISOString().slice(0, 10);
+	const formattedEndDate = endOfPreviousWeek.toISOString().slice(0, 10);
+
+	// Output the start and end dates
+	// console.log("Start Date of Previous Week:", formattedStartDate);
+	// console.log("End Date of Previous Week:", formattedEndDate);
+
+	$('#fromDate').val(formattedStartDate);
+	$('#toDate').val(formattedEndDate);
+}
+
+function selectStatusChange() {
+
+	console.log('selectStatusChange');
+	
+	var status = $(this).val();
+	var selectedText = $('#selectpicker option:selected').text();
+
+	// console.log('status: ' + status);
+	// console.log('selectedText: ' + selectedText);
+
+	if ( status ) {
+		console.log('true');
+		$("#filterBtn"). attr("disabled", false);
+	} else {
+		console.log('false');
+		$("#filterBtn"). attr("disabled", true);
+	}
+
+	// console.log('id: ' + id);
+	// console.log('status: ' + status);
+	// updateInvoiceStatus(id, status);
+
+}
+
+function getDate( element ) {
+
+	var date;
+	var dateFormat = "yy-mm-dd";
+	try {
+		date = $.datepicker.parseDate( dateFormat, element.value );
+	} catch( error ) {
+		date = null;
+	}
+	return date;
+
+}
 
 function backToInvoiceList(e) {
 	window.location.href = '/invoice-list';
@@ -87,6 +397,7 @@ function getClientLineInfo(user_id, currentClientId) {
 			alert(thrownError);
 		}
 	});
+
 }
 
 function isNumberKey(evt) {
@@ -209,9 +520,7 @@ var goog = getInvoiceList().then(function(res) {
 	$.each(res.details, function(data1, data2) {
 		
 		const lineAmount = data2.invoiceline.reduce((acc, item) => acc + parseFloat(item.linetotal), 0);
-
 		fullAmount += lineAmount;
-
 		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus, lineAmount);
 		output += row;
 
@@ -240,7 +549,7 @@ function getInvoiceList() {
 		contentType: false,
 	};
 
-	return genericGet(data).then((returnValue) => returnValue );
+	return genericGet(data).then((returnValue) => returnValue);
 
 }
 

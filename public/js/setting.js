@@ -42,6 +42,79 @@ $(document).ready(function(){
 
 	});
 
+	$('#userForm').submit(function(evt) {
+		console.log('submit form');
+		
+		evt.preventDefault();
+		let formData = new FormData(this);
+		// var formData = new FormData($('#userForm'));
+		console.log(formData);
+
+		$.ajaxSetup({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			}
+		});
+
+		let ajaxData = {
+			_token: '{{ csrf_token() }}',
+			'user_firstname': $('#user_firstname').val(),
+			'user_surname': $('#user_surname').val(),
+			'user_mobile': $('#user_mobile').val(),
+			'user_email': $('#user_email').val(),
+			'user_idnumber': $('#user_idnumber').val(),
+			'user_dateofbirth': $('#user_dateofbirth').val(),
+			'user_vat': $('#user_vat').val()
+		};
+
+		$.ajax({
+			url: '/saveUser',
+			method: 'POST',
+			data: ajaxData,
+			success: function(response) {
+				alert('Form data saved successfully.');
+				// Perform any additional actions or redirect as needed
+			},
+			error: function(xhr, status, error) {
+				console.log(status);
+				console.log(error);
+				alert('An error occurred while saving the form data.');
+				// Handle error scenario
+			}
+		});
+
+	});
+
+	// save user details
+	// $(document).on('click', '.saveUserDetails', function(evt) {
+
+	// 	evt.preventDefault();
+	// 	console.log('saveUserDetails');
+
+	// 	let formData = new FormData(this);
+	// 	// var formData = new FormData($('#userForm'));
+
+	// 	console.log(formData);
+
+	// 	$.ajax({
+	// 		url: '/saveUser',
+	// 		method: 'POST',
+	// 		data: formData,
+	// 		contentType: false,
+	// 		processData: false,
+	// 		success: function(response) {
+	// 			alert('Form data saved successfully.');
+	// 			// Perform any additional actions or redirect as needed
+	// 		},	
+	// 		error: function(xhr, status, error) {
+	// 			console.log(status);
+	// 			console.log(error);
+	// 			alert('An error occurred while saving the form data.');
+	// 			// Handle error scenario
+	// 		}
+	// 	});
+	// });
+
 });
 
 function getUserDetailsInfo() {
@@ -93,7 +166,7 @@ function populateFields(data) {
 	$('#file-preview').empty().append(previewImage);
 
 	// disable submit button 
-	$('.saveClient').attr('disabled', true);
+	// $('.saveClient').attr('disabled', true);
 
 }
 

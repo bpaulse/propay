@@ -108,7 +108,7 @@
 
 						This will be the email content of the email
 
-						{{ $myownvar }}
+						{{ $emailContentText }}
 
 					</td>
 				<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>

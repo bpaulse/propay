@@ -89,6 +89,48 @@ class PDFController extends Controller {
 
 	}
 
+	public function createPDFStatement ($fileName) {
+
+		$public = 'public';
+
+		$invoicelinesObj = new InvoiceLineController();
+		$invLines = $invoicelinesObj->getInvoiceLines($this->invoiceid);
+
+		$invoiceTotal = floatval(0.00);
+
+		foreach ( $invLines as $line ) {
+			$invoiceTotal = $invoiceTotal + floatval($line['linetotal']);
+		}
+
+		$client = new ClientController();
+		$clientDetails = $client->getClientInfo($this->invoiceid);
+
+		$user = new PersonController();
+		$userDetails = $user->getPersonInfo(Auth::user()->id);
+
+		$paddedInvoiceNumber = $this->padInvoiceNumber($this->invoiceid);
+
+		$data = [
+			'title' => 'Welcome to datanav.com',
+			'date' => date('m/d/Y'),
+			'invoicelines' => $invLines,
+			'invoiceTotal' => number_format($invoiceTotal, 2),
+			'currency' => 'R',
+			'invoiceNumber' => $paddedInvoiceNumber,
+			'client' => $clientDetails,
+			'user' => $userDetails,
+			'image' => 'clientLogos/' . $userDetails->logo
+		];
+
+		$pdf = PDF::loadView('pdf.pdf', $data);
+
+		$fullpathName = 'pdf' . $this->ds . $fileName . '.pdf';
+		$pdf->save($fullpathName);
+
+		return $fullpathName;
+
+	}
+
 	public function padInvoiceNumber($id) {
 		$prefix = 'INV_';
 		$zeros = '';

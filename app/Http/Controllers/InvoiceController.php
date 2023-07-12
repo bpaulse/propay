@@ -229,14 +229,124 @@ class InvoiceController extends Controller
 
 	}
 
+	public function filterInvoices(Request $request) {
+
+		$status = $request->status;
+		$fromDate = $request->fromDate;
+		$toDate = $request->toDate;
+
+		// var_dump($status);
+		// var_dump($fromDate);
+		// var_dump($toDate);
+
+		$invoice = [];
+		$invoicelines = [];
+
+		if (Auth::check()) {
+
+			if ( $toDate == 0 || $fromDate == 0 ) {
+
+				$invoice = Invoice::where(
+					[
+						['deleted', '=', 0],
+						['user_id', '=', Auth::user()->id],
+						['invoiceStatus', '=', $status]
+					]
+				)->get();
+	
+				// SELECT * FROM `invoices` 
+				// WHERE user_id = 1 and deleted = 0 
+				// and invoiceStatus = 1 
+				// and sent_at > '2023-05-25' 
+				// and sent_at < '2023-06-05'
+	
+			} else {
+
+				$queryDates = [$fromDate, $toDate];
+
+				if ( $status == 0 ) {
+
+					$invoice = Invoice::where(
+						[
+							['deleted', '=', 0],
+							['user_id', '=', Auth::user()->id],
+							['invoiceStatus', '=', $status]
+						]
+					)->whereBetween('created_at', $queryDates
+					)->get();
+
+				} elseif ( $status == 1 ) {
+
+					$invoice = Invoice::where(
+						[
+							['deleted', '=', 0],
+							['user_id', '=', Auth::user()->id],
+							['invoiceStatus', '=', $status]
+						]
+					)->whereBetween('sent_at', $queryDates
+					)->get();
+
+				} elseif ( $status == 2 ) {
+
+					$invoice = Invoice::where(
+						[
+							['deleted', '=', 0],
+							['user_id', '=', Auth::user()->id],
+							['invoiceStatus', '=', $status]
+						]
+					)->whereBetween('paid_at', $queryDates
+					)->get();
+
+				}
+
+			}
+
+			foreach ( $invoice as $inv ) {
+				// var_dump($inv->invoiceline->count());
+				$element = [
+					'id' => $inv->id,
+					'count' => $inv->invoiceline->count()
+				];
+
+				array_push($invoicelines, $element);
+			}
+
+
+		}
+
+		return response()->json(['details' => $invoice, 'invoicelines' => $invoicelines]);
+
+	}
+
 	public function printInvoice () {
 		return view('print.invoice');
 	}
 
 	public function buildAndSendInvoice (Request $request) {
 
+		// var_dump($request->input('invoiceid'));
+
 		$this->setInvoiceId($request->input('invoiceid'));
-		$this->sendSystemEmail();
+		$output = $this->sendSystemEmail();
+
+		return response()->json(['code' => $output['code'], 'msg' => $output['msg']]);
+
+	}
+
+	public function updateInvoiceForSending () {
+
+		$invoice = Invoice::find($this->getInvoiceId());
+
+		$invoice->invoiceStatus = 1;
+		$invoice->sent_at = date('Y-m-d H:i:s');
+
+		$save = $invoice->save();
+
+		if ( $save ) {
+			return ['status' => 'success', 'msg' => 'Invoice status updated successfully!'];
+		} else {
+			return ['status' => 'error', 'msg' => 'Something went wrong!'];
+		}
 
 	}
 
@@ -244,35 +354,50 @@ class InvoiceController extends Controller
 
 		if (Auth::check()) {
 
-			$pdf = new PDFController($this->getInvoiceId());
-			$pdfFileName = $pdf->generatePDF();
+			if ( $this->updateInvoiceForSending()['status'] == 'success' ) {
 
-			$this->setPdfFileName($pdfFileName);
 
-			$user = Auth::user();
+				// return response()->json(['code' => 1, 'msg' => 'Email sent successfully...']);
+				// return ['code' => 1, 'msg' => 'Email sent successfully...'];
+				// return response()->json(['msg' => 'Email sent successfully...']);
+				// $data = ['code' => 1, 'msg' => 'Email sent successfully...'];
 
-			// $attachment = public_path('pdf/invoice_1_06062023130611.pdf');
-			$attachment = public_path($pdfFileName);
-			$subject = 'navBill: Invoice';
-			$emailContentText = 'Dear {recipientName}, <br />\n\n Please find attached your invoice for the services rendered/Products purchases.<br />Thank you for your business.<br />Kind regards,<br />navBill Team';
+				// return response()->json($data)->header('Content-Type', 'application/json');
 
-			Mail::to($user->email)->send(new SystemEmail(
-				[
-					'attachmentPath' => $attachment, 
-					'subject' => $subject,
-					'emailContentText' => $emailContentText,
-				]
-			));
+				// generate pdf
+				$pdf = new PDFController($this->getInvoiceId());
+				$pdfFileName = $pdf->generatePDF();
+				$this->setPdfFileName($pdfFileName);
 
-			if (Mail::failures()) {
-				return response()->json(['code' => 0, 'msg' => 'Something went wrong sending the email...']);
+				$user = Auth::user();
+
+				// $attachment = public_path('pdf/invoice_1_06062023130611.pdf');
+				$attachment = public_path($pdfFileName);
+				$subject = 'navBill: Invoice';
+				$emailContentText = 'Dear {recipientName}, <br />\n\n Please find attached your invoice for the services rendered/Products purchases.<br />Thank you for your business.<br />Kind regards,<br />navBill Team';
+
+				Mail::to($user->email)->send(new SystemEmail(
+					[
+						'attachmentPath' => $attachment, 
+						'subject' => $subject,
+						'emailContentText' => $emailContentText,
+					]
+				));
+
+				if (Mail::failures()) {
+					return ['code' => 0, 'msg' => 'Something went wrong sending the email...'];
+				} else {
+					return ['code' => 1, 'msg' => 'Email sent successfully...'];
+				}
+
 			} else {
-				return response()->json(['code' => 1, 'msg' => 'Email sent successfully...']);
+				return ['code' => 0, 'msg' => 'Something went wrong updating Invoice Status...'];
 			}
 
-		} else {
-			return redirect('/login');
 		}
+		// else {
+		// 	return redirect('/login');
+		// }
 
 	}
 

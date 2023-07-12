@@ -63,8 +63,6 @@ $(document).ready(function() {
 			dataType: 'json',
 			contentType: false,
 			success: function(data) {
-				console.log("data");
-				console.log(data);
 				populateProductSelect(data.products);
 				// reset values
 				$('#quantityDesc').text(1);
@@ -122,8 +120,6 @@ $(document).ready(function() {
 
 	$(document).on('click', '.submit-product', function(e) {
 
-		console.log('.submit-product');
-
 		let type = $(this).text();
 		var product_name = $('#product_name').val();
 		var unitprice = $('#unitprice').val();
@@ -134,8 +130,6 @@ $(document).ready(function() {
 			product_id = 0;
 		}
 
-		console.log(type);
-
 		var ajaxData = {
 			product_name: product_name,
 			unitprice: unitprice,
@@ -143,18 +137,12 @@ $(document).ready(function() {
 			user_id: 1
 		};
 
-		console.log(ajaxData);
-
-		// $('#productform').hide();
-
 		$.ajax({
 			method: 'post',
 			url: '/updateProductLine',
 			data: ajaxData,
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 			success: function(response) {
-
-				console.log(response);
 
 				if (response.code === 1) {
 
@@ -228,8 +216,6 @@ $(document).ready(function() {
 			data: ajaxData,
 			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 			success: function(response) {
-
-				// console.log(response.code);
 
 				if (response.code === 1 || response.code === 3) {
 
@@ -325,7 +311,6 @@ $(document).ready(function() {
 	$(document).on('click', '.deleteInvoiceButton', function() {
 
 		var invoiceID = $("#invoiceID").data('invoice_id');
-		console.log('InvoiceID: ' + invoiceID);
 		$('#deleteInvoiceModal').modal('show');
 
 		const ajaxData = {inv_id: invoiceID};
@@ -337,18 +322,12 @@ $(document).ready(function() {
 			dataType: 'json',
 			contentType: false,
 			success: function(data) {
-				// console.log(data)
 	
 				if (data.code) {
-					console.log(data);
-					// $('#' + data.product).remove();
+
 					toastr.success(data.msg);
 
-					console.log('id');
-					console.log(data.invoice_id);
-
 					$('.invoiceline[data-id="'+data.invoice_id+'"]').remove();
-
 					$('#deleteInvoiceModal').modal('hide');
 
 				} else {
@@ -364,7 +343,7 @@ $(document).ready(function() {
 	});
 
 	$(document).on('click', '.deleteInvoice', function() {
-		console.log('deleteInvoice');
+
 		var invoice_id = $(this).closest('tr').attr('data-id');
 		$('#deleteInvoiceModal').modal('show');
 		const modalQuestion = 'Are you sure you want to delete the Invoice (Inv # ' + invoice_id + ') ?';
@@ -409,9 +388,8 @@ $(document).ready(function() {
 
 	$("#editInvoiceModal").on("hidden.bs.modal", function() {
 		// put your default event here
-		console.log('closing edit invoice modal');
+
 		let invoice_id = $('#inv_id').val();
-		console.log(invoice_id);
 
 		let invoice_name = $('#invoice_name').val();
 		let invoice_desc = $('#invoice_desc').val();
@@ -510,17 +488,14 @@ function backToInvoiceList(e) {
 }
 
 function openStatementPage() {
-	console.log('openStatementPage');
 	window.location.href = '/statement-list';
 }
 
 function closeProductModal () {
-	console.log('closeProductModal');
 	$('#productModal').modal('hide');
 }
 
 function closeEditInvoiceModal () {
-	console.log('closeEditInvoiceModal');
 	$('#editInvoiceModal').modal('hide');
 }
 
@@ -580,17 +555,47 @@ function buildAndSendInvoice(id) {
 			url: '/buildAndSendInvoice',
 			data: ajaxData,
 			dataType: 'json',
+			contentType: false,
 			beforeSend: function() {
 				$('#loading-div').show();
 			},
 			success: function(response) {
-				toastr.success(response.msg);
-				$('#loading-div').hide();
+
+				if ( response.code == 1) {
+
+					toastr.success(response.msg);
+					$('#loading-div').hide();
+
+					$('#status_img_' + id).attr('src', 'images/email.jpg');
+				}
+
+				// var data = JSON.parse(response);
+				// console.log(data);
+				// console.log(data.code);
+
+				// if ( data.code == 1 ) {
+
+				// 	toastr.success(response.msg);
+
+				// // 	// set image to email jpg - get parent tr and then find the image
+				// // 	$(this).closest('tr').find('th').eq(0).find('img').attr('src', 'images/email.jpg');
+
+				// // 	// $(this).parent('td').parent('tr').
+				// // 	// $('#emailImage').attr('src', '/images/email.jpg');
+
+				// 	$('#loading-div').hide();
+
+				// } else {
+				// 	toastr.warning(response.msg);
+				// }
+
 			},
-			error: function(e) {
+			error: function(jqXHR, textStatus, errorThrown) {
 				$('#loading-div').hide();
-				console.log(e);
 				toastr.warning("Unable to send email...");
+
+				console.log('Request failed: ' + jqXHR.status + ' - ' + jqXHR.responseText);
+				console.log('Request failed: ' + textStatus + ' - ' + errorThrown);
 			}
 
 		});
@@ -601,9 +606,9 @@ function buildAndSendInvoice(id) {
 }
 
 function deleteLineProduct() {
-	console.log('.delete-Product');
+
 	var productid = $(this).closest('tr').attr('id');
-	console.log(productid);
+
 	let ajaxData = { product_id: productid };
 
 	$.ajax({
@@ -613,10 +618,8 @@ function deleteLineProduct() {
 		dataType: 'json',
 		contentType: false,
 		success: function(data) {
-			// console.log(data)
 
 			if (data.code) {
-				console.log(data.product);
 				$('#' + data.product).remove();
 				toastr.success(data.msg);
 			} else {
@@ -918,8 +921,6 @@ async function genericGet(data) {
 			contentType: false,
 		});
 
-		// console.log(result);
-
 		return result;
 
 	} catch (error) {
@@ -932,10 +933,7 @@ var goog = getInvoiceList().then(function(res) {
 	
 	var output = '';
 
-	// console.log(res);
-
 	$.each(res.details, function(data1, data2) {
-		// console.log(data2);
 		var row = invoiceRow(data2.id, data2.invoice_name, data2.invoice_desc, data2.invoiceStatus);
 		output += row;
 	});
@@ -946,7 +944,6 @@ var goog = getInvoiceList().then(function(res) {
 	});
 
 });
-
 
 function getInvoiceList() {
 
@@ -986,7 +983,7 @@ function retrieveProduct(productid) {
 function invoiceRow(invoiceId, invoiceName, invoiceDesc, invoiceStatus) {
 	return '<tr class="invoiceline" data-id="' + invoiceId + '">' + 
 	TableHCellFirst(invoiceId) + 
-	TableHCell(lineStatus(invoiceStatus)) + 
+	TableHCell(lineStatus(invoiceStatus, invoiceId)) + 
 	TableHCell(invoiceName) + 
 	TableHCell(invoiceDesc) + 
 	TableHCell(editAndSaveButtons()) + '</tr>';
@@ -996,18 +993,16 @@ function productRow(item) {
 	return '<tr data-id="' + invoiceId + '"><th>' + editAndSaveButtons() + '</th></tr>';
 }
 
-function lineStatus(invoiceStatus) {
-	// console.log(invoiceStatus)
+function lineStatus(invoiceStatus, id) {
 	output = '';
 	if (invoiceStatus == 0) {
 		output = 'new_invoice.jfif';
-		// output = '';
 	} else if (invoiceStatus == 1) {
-		output = 'email.png';
+		output = 'email.jpg';
 	} else {
 		output = 'paid.jpg'
 	}
-	return '<img src="images/' + output + '" style="width: 35px;" />';
+	return '<img  id="status_img_'+id+'" src="images/' + output + '" style="width: 35px;" />';
 }
 
 function buildInvoiceLines(invoiceid) {

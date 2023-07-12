@@ -20,8 +20,12 @@ class LoginController extends Controller
 	 */
 
 	public function logout(Request $request) {
-		$this->guard()->logout();
-		$request->session()->invalidate();
-		return redirect('/index');
+		// var_dump('bevan');
+		// $this->guard()->logout();
+		// $request->session()->invalidate();
+		// return redirect('/index');
+		Session::flush();
+		Auth::logout();
+		return redirect('login');
 	}
 }

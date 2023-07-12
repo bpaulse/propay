@@ -27,7 +27,7 @@
 								</div>
 							@else
 								<div>
-									<form action="{{ route('add.client') }}" method="POST" id="add-client-form">
+									<form id="userForm" enctype="multipart/form-data" method="POST">
 										<div class="modal-body">
 											<table class="table">
 												@csrf
@@ -118,7 +118,7 @@
 
 										</div>
 										<div class="modal-footer">
-											<button type="submit" class="btn btn-primary saveClient">Submit</button>
+											<button type="submit" class="btn btn-primary saveUserDetails">Submit</button>
 											<button type="button" class="btn btn-secondary closeAddClientModal" data-dismiss="modal">Close</button>
 										</div>
 									</form>
